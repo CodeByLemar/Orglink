@@ -1,0 +1,35 @@
+# Ignore the writable directory
+/writable/
+
+# Ignore environment files
+/.env
+
+# Ignore vendor directory (if using Composer)
+!/vendor/
+
+# Ignore system directory (CodeIgniter core files)
+/system/
+
+# Ignore cache files
+/writable/cache/
+
+# Ignore logs
+/writable/logs/
+
+# Ignore session files
+/writable/sessions/
+
+/writable/debugbar/
+
+# Ignore uploads directory (if applicable)
+#writable/uploads/
+
+# Ignore user-specific files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files
+.idea/
+.vscode/

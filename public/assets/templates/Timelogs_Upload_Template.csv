@@ -1,0 +1,22 @@
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,FROM VALIDATED (NEED TO HIDE ONCE CONVERTING HRS TO MINS),,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,Company Code,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,Date From (YYYY-MM-DD),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,Date To (YYYY-MM-DD),,,,,,,,,,,OVERTIME,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,"RWD (Regular OT) 
+125% - minimum of 1hr
+",,,"RD (Rest day OT)
+130 % - 1st 8 hrs
+169 % - in excess of 8 hrs min of 1hr",,,"RHNR (Regular Hol OT) 
+200 % - 1st 8 hrs
+260 % - in excess of 8 hrs min of 1hr",,,"RHRD (Regular Hol OT-RD)
+ 260 % - 1st 8 hrs
+338 % - in excess of 8 hrs min of 1hr",,,"SHNR (Special Hol OT)
+130 % - 1st 8 hrs
+169 % - in excess of 8 hrs min of 1hr",,,"SHRD (Special Hol OT-RD) 
+150 % - 1st 8 hrs
+195 % - in excess of 8 hrs min of 1hr",,,,,
+No.,Employee No.,Employee Name,Position,"Department/
+Branch",Late,Under,Abs,LHrs,WHrs,OvrBreak,NP,Ovt,Ovt8,NPOT,Ovt,Ovt8,NPOT,Ovt,Ovt8,NPOT,Ovt,Ovt8,NPOT,Ovt,Ovt8,NPOT,NP,NP8,Ovt,Ovt8,NPOT,EO-TIMEKEEPING REMARKS
