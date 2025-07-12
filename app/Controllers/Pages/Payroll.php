@@ -289,5 +289,137 @@ class Payroll extends BaseController
         $this->response->setHeader('Content-Type', 'application/pdf');
         $pdf->Output('Print_register.pdf', 'I'); // 'I' = inline, 'D' = download
     }
+
+    public function GetSelectedLogsData()
+    {
+        $requestJson = $this->postRequest->getJSON(); 
+        $references = $requestJson->references;
+
+        $refArray = [];
+
+        foreach ($references as $refObj) {
+            $refArray[] = (int) $refObj->reference;
+        }
+
+        $referenceString = implode(',', $refArray);
+
+        $data = [
+            "References" => $referenceString,
+            "data" => $this->PayrollModel->getselectedlogsdata($referenceString)
+        ];
+
+        return $this->response->setJSON($data);
+    }
+
+    public function SaveValidatedLogs(){
+        $requestJson = $this->postRequest->getJSON(); 
+        $references = $requestJson->references;
+
+        $result = $this->PayrollModel->getselectedlogsdata($references);
+            
+        foreach($result as $row) {
+
+            $this->validate_logs_main($row->CUT_Ref_No);
+            
+            $data[] = [
+                "VPDL_Emp_No" => $row->CUT_Client_ID,
+                "VPDL_Company" => $row->CUT_Company_Code,
+                "VPDL_Date_From" => $row->CUT_From,
+                "VPDL_Date_To" => $row->CUT_To,
+                "VPDL_Department" => $row->CUT_Dept,
+                "VPDL_Late" => $row->CUT_Late,
+                "VPDL_Under" => $row->CUT_Undertime,
+                "VPDL_Abs" => $row->CUT_Absent,
+                "VPDL_LHrs" => $row->CUT_LHrs,
+                "VPDL_WHrs" => $row->CUT_WHrs,
+                "VPDL_NP" => $row->CUT_NP,
+                "VPDL_NP_Amount" => $row->CUT_NP_Amount,
+                "VPDL_OverBreak" => $row->CUT_Ovrbreak,
+                "VPDL_Total_Overbreak" => $row->CUT_Ovrbreak_Amount,
+                "VPDL_RWD_Ovt" => $row->CUT_RWD_Ovt,
+                "VPDL_RWD_Ovt_Amount" => $row->CUT_RWD_Ovt_Amount,
+                "VPDL_RWD_Ovt8" => $row->CUT_RWD_Ovt8,
+                "VPDL_RWD_Ovt8_Amount" => $row->CUT_RWD_Ovt8_Amount,
+                "VPDL_RWD_NP" => $row->CUT_RWD_NP,
+                "VPDL_RWD_NP_Amount" => $row->CUT_RWD_NP_Amount,
+                "VPDL_RWD_NP8" => $row->CUT_RWD_NP8,
+                "VPDL_RWD_NP8_Amount" => $row->CUT_RWD_NP8_Amount,
+                "VPDL_RD_Ovt" => $row->CUT_RD_Ovt,
+                "VPDL_RD_Ovt_Amount" => $row->CUT_RD_Ovt_Amount,
+                "VPDL_RD_Ovt8" => $row->CUT_RD_Ovt8,
+                "VPDL_RD_Ovt8_Amount" => $row->CUT_RD_Ovt8_Amount,
+                "VPDL_RD_NP" => $row->CUT_RD_NP,
+                "VPDL_RD_NP_Amount" => $row->CUT_RD_NP_Amount,
+                "VPDL_RD_NP8" => $row->CUT_RD_NP8,
+                "VPDL_RD_NP8_Amount" => $row->CUT_RD_NP8_Amount,
+                "VPDL_RHNR_Ovt" => $row->CUT_RHNR_Ovt,
+                "VPDL_RHNR_Ovt_Amount" => $row->CUT_RHNR_Ovt_Amount,
+                "VPDL_RHNR_Ovt8" => $row->CUT_RHNR_Ovt8,
+                "VPDL_RHNR_Ovt8_Amount" => $row->CUT_RHNR_Ovt8_Amount,
+                "VPDL_RHNR_NP" => $row->CUT_RHNR_NP,
+                "VPDL_RHNR_NP_Amount" => $row->CUT_RHNR_NP_Amount,
+                "VPDL_RHNR_NP8" => $row->CUT_RHNR_NP8,
+                "VPDL_RHNR_NP8_Amount" => $row->CUT_RHNR_NP8_Amount,
+                "VPDL_RHRD_Ovt" => $row->CUT_RHRD_Ovt,
+                "VPDL_RHRD_Ovt_Amount" => $row->CUT_RHRD_Ovt_Amount,
+                "VPDL_RHRD_Ovt8" => $row->CUT_RHRD_Ovt8,
+                "VPDL_RHRD_Ovt8_Amount" => $row->CUT_RHRD_Ovt8_Amount,
+                "VPDL_RHRD_NP" => $row->CUT_RHRD_NP,
+                "VPDL_RHRD_NP_Amount" => $row->CUT_RHRD_NP_Amount,
+                "VPDL_RHRD_NP8" => $row->CUT_RHRD_NP8,
+                "VPDL_RHRD_NP8_Amount" => $row->CUT_RHRD_NP8_Amount,
+                "VPDL_SHNR_Ovt" => $row->CUT_SHNR_Ovt,
+                "VPDL_SHNR_Ovt_Amount" => $row->CUT_SHNR_Ovt_Amount,
+                "VPDL_SHNR_Ovt8" => $row->CUT_SHNR_Ovt8,
+                "VPDL_SHNR_Ovt8_Amount" => $row->CUT_SHNR_Ovt8_Amount,
+                "VPDL_SHNR_NP" => $row->CUT_SHNR_NP,
+                "VPDL_SHNR_NP_Amount" => $row->CUT_SHNR_NP_Amount,
+                "VPDL_SHNR_NP8" => $row->CUT_SHNR_NP8,
+                "VPDL_SHNR_NP8_Amount" => $row->CUT_SHNR_NP8_Amount,
+                "VPDL_SHRD_Ovt" => $row->CUT_SHRD_Ovt,
+                "VPDL_SHRD_Ovt_Amount" => $row->CUT_SHRD_Ovt_Amount,
+                "VPDL_SHRD_Ovt8" => $row->CUT_SHRD_Ovt8,
+                "VPDL_SHRD_Ovt8_Amount" => $row->CUT_SHRD_Ovt8_Amount,
+                "VPDL_SHRD_NP" => $row->CUT_SHRD_NP,
+                "VPDL_SHRD_NP_Amount" => $row->CUT_SHRD_NP_Amount,
+                "VPDL_SHRD_NP8" => $row->CUT_SHRD_NP8,
+                "VPDL_SHRD_NP8_Amount" => $row->CUT_SHRD_NP8_Amount,
+                "VPDL_Remarks" => $row->CUT_Remarks ?? '',
+                "VPDL_Audit_User" => session('u_id'),
+                "VPDL_Audit_Date" => $this->current_date(),
+
+            ];
+        }
+
+        $response = $this->PayrollModel->insert_batch('validated_payroll_data_list', $data);
+
+        if ($response) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Logs validated successfully"
+            ]);
+        } else {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "failed to validate logs"
+            ]);
+        }
+
+    }
+
+    private function validate_logs_main($reference){
+        $this->PayrollModel->update_logs(["CUT_Status" => "Validated"], $reference, 'client_uploaded_timelogs', 'CUT_Ref_No');
+    }
+
+    private function current_date(){
+        $current_date = '';
+        $getcurrentdate = $this->PayrollModel->getcurrentdate();
+            foreach($getcurrentdate as $tmp){
+                $current_date = $tmp->currentdatetime;
+        }
+
+        return $current_date;
+            
+    }
 }
 ?>

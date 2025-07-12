@@ -28,6 +28,8 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('print_register', 'Pages\Payroll::print_register', ['as' => 'print_register']);
         $routes->get('print_register_pdf', 'Pages\Payroll::print_register_pdf', ['as' => 'print_register_pdf']);  
 
+        $routes->post('GetSelectedLogsData', 'Pages\Payroll::GetSelectedLogsData', ['as' => 'GetSelectedLogsData']);
+        $routes->post('SaveValidatedLogs', 'Pages\Payroll::SaveValidatedLogs', ['as' => 'SaveValidatedLogs']);
         
     });
 });

@@ -82,6 +82,13 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('getcompanydeptlist', 'Maintenance\ReferenceMaintenance::getcompanydeptlist');
         $routes->post('getdeptpositionlist', 'Maintenance\ReferenceMaintenance::getdeptpositionlist');
         $routes->post('getdeptsectionlist', 'Maintenance\ReferenceMaintenance::getdeptsectionlist');
+
+        $routes->post('addbranch', 'Maintenance\ReferenceMaintenance::addbranch');
+        $routes->get('getbranchlist', 'Maintenance\ReferenceMaintenance::getbranchlist');
+        $routes->get('getarealist', 'Maintenance\ReferenceMaintenance::getarealist');
+        $routes->post('getcitylist', 'Maintenance\ReferenceMaintenance::getcitylist');
+        $routes->post('getbrgylist', 'Maintenance\ReferenceMaintenance::getbrgylist');
+        
         
     });
 

@@ -191,6 +191,56 @@ class ReferenceMaintenanceModel extends Model
         $result = $query->getResult();
         return $result;
     }
+
+    public function UpdateBranch($refno,$data){
+        $query = $this->db->table('client_branch_list');
+        $query->where('CBL_Ref_No', $refno);
+        $query->update($data);
+    }
+
+    public function insert_record($data, $table)
+    {
+        return $this->db->table($table)->insert($data); 
+    }
+
+    public function getbranchlist()
+    {
+        return $this->db->table('client_branch_list')
+            ->select('CBL_Ref_No, CBL_Branch_Code, CBL_Branch_Name, CBL_Status, CCL_Company_Name, CBL_CCL_Ref_No, CBL_Area, CBL_Municipality, CBL_Street_Brgy')
+            ->join('client_company_list', 'CBL_CCL_Ref_No = CCL_Ref_No', 'inner')
+            ->orderBy('CBL_Branch_Name', 'asc')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getarealist(){
+        return $this->db->table('area_list')
+            ->select('AL_Ref_No, AL_Area_Desc')
+            ->where('AL_Status', 'ACTIVE')
+            ->orderBy('AL_Area_Desc', 'asc')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getcitylist($code){
+        return $this->db->table('city_list')
+            ->select('CM_Ref_No, CM_City_Municipality_Name')
+            ->where('CM_Status', 'ACTIVE')
+            ->where('CM_Area_Code', $code)
+            ->orderBy('CM_City_Municipality_Name', 'asc')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getbrgylist($code){
+        return $this->db->table('barangay_list')
+            ->select('BL_Ref_No, BL_Barangay_Name')
+            ->where('BL_Status', 'ACTIVE')
+            ->where('BL_City_Code', $code)
+            ->orderBy('BL_Barangay_Name', 'asc')
+            ->get()
+            ->getResultArray();
+    }
 }
 
 

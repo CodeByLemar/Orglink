@@ -4,7 +4,7 @@
         $('#company_btn').trigger('click');
         getdeptlist();
         getcompanylist();
-
+        getarealist('#area', '#edit_area');
         assigncalendardays();
     });
     
@@ -36,6 +36,21 @@
                 PopulateCompany(details);
 
                 break;
+            case 'branch': 
+                CBL_Ref_No = $(this).attr("data-CBL_Ref_No");
+                CBL_CCL_Ref_No = $(this).attr("data-CBL_CCL_Ref_No");
+                CBL_Branch_Code = $(this).attr("data-CBL_Branch_Code");
+                CBL_Branch_Name = $(this).attr("data-CBL_Branch_Name");
+                CBL_Area = $(this).attr("data-CBL_Area");
+                CBL_Municipality = $(this).attr("data-CBL_Municipality");
+                CBL_Street_Brgy = $(this).attr("data-CBL_Street_Brgy");
+
+                details = [
+                    CBL_Ref_No, CBL_CCL_Ref_No, CBL_Branch_Code, CBL_Branch_Name, CBL_Area, CBL_Municipality, CBL_Street_Brgy
+                ];
+
+                PopulateBranch(details);
+            break;
             case 'dept': 
              
                 CDL_Ref_No = $(this).attr("data-CDL_Ref_No");
@@ -93,11 +108,12 @@
                 },
                 success:function(data){    
                     alert('Succesfully Submitted'); 
-                    $("#add_company_modal,#add_dept_modal,#add_pos_modal").modal('hide');
+                    $("#add_company_modal,#add_dept_modal,#add_pos_modal, #add_branch_modal").modal('hide');
                     getcompanylist();
                     getdeptlist();
                     getposlist(); 
                     getseclist();
+                    getbranchlist();
                 }
             });
 
@@ -124,55 +140,48 @@
                 },
                 success:function(data){    
                     alert('Succesfully Submitted'); 
-                    $("#add_company_modal,#add_dept_modal,#add_pos_modal").modal('hide');
+                    $("#add_company_modal,#add_dept_modal,#add_pos_modal, #add_branch_modal").modal('hide');
                     getcompanylist();
                     getdeptlist();
                     getposlist(); 
                     getseclist(); 
+                    getbranchlist();
                 }
             });
 
         }
     });
 
-    $(document).on('click', '#company_btn,#dept_btn,#pos_btn,#sec_btn', function() { 
+    $(document).on('click', '#company_btn, #branch_btn, #dept_btn,#pos_btn,#sec_btn', function() { 
         $('.refbtns').removeClass('btn-primary').addClass('btn-dark');
         $(this).toggleClass('btn-primary btn-dark');
         val = $(this).val();
+
+        $("#company_div, #branch_div, #dept_div, #pos_div, #sec_div").hide();
         
         switch (val) {
             case 'company':
                 getcompanylist();
                 $('#company_div').fadeIn();
-                $('#dept_div').hide();
-                $('#pos_div').hide(); 
-                $('#sec_div').hide();
-
                 break;
+            case 'branch': 
+                getbranchlist();
+                $('#branch_div').fadeIn();
+            break;
+            
             case 'dept':
                 
                 getdeptlist();
-                $('#company_div').hide();
                 $('#dept_div').fadeIn();
-                $('#pos_div').hide();
-                $('#sec_div').hide();
-
                 break;
             case 'pos':
                 
                 getposlist();
-                $('#company_div').hide();
-                $('#dept_div').hide();
                 $('#pos_div').fadeIn();
-                $('#sec_div').hide();
-
                 break;
             case 'sec':
                 
                 getseclist();
-                $('#company_div').hide();
-                $('#dept_div').hide();
-                $('#pos_div').hide();
                 $('#sec_div').fadeIn();
 
                 break;
@@ -325,6 +334,9 @@
 
                 $('#CompanyFilter').empty(); 
                 $('#CompanyFilter').append(`<option value="All">- All Companies -</option>`);
+
+                $('#b_company').empty().append(`<option value="">Select a company</option>`);
+                $('#EditBranchCompany').empty().append(`<option value="">Select a company</option>`);
                 
                 
                 data.forEach(row => {  
@@ -361,7 +373,8 @@
                         $('#DCompanyCode').append(option);
                         $('#EditDCompanyCode').append(option);
                         $('#CompanyFilter').append(option); 
-                        
+                        $('#b_company').append(option);
+                        $('#EditBranchCompany').append(option);
                     } 
                     
                 });
@@ -685,4 +698,165 @@
             });
         }
     });
+
+
+    function getarealist(element, element2){
+        $.ajax({
+            url: "<?= base_url('ReferenceMaintenance/getarealist') ?>",
+            type: "GET",
+            dataType: "JSON",
+            success:(data)=>{
+                if (data.length > 0) {
+                    $(element).empty().append(`<option value="">Select an area</option>`);
+                    $(element2).empty().append(`<option value="">Select an area</option>`);
+
+                    data.forEach((row)=>{
+                        $(element).append(`<option value="${row.AL_Ref_No}">${row.AL_Area_Desc}</option>`);
+                        $(element2).append(`<option value="${row.AL_Ref_No}">${row.AL_Area_Desc}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+    function getcitylist(element, value, editValue=''){
+        $.ajax({
+            url: "<?= base_url('ReferenceMaintenance/getcitylist') ?>",
+            type: "POST",
+            data:JSON.stringify({areacode: value}),
+            dataType: "JSON",
+            success:(data)=>{
+                if (data.length > 0) {
+                    $(element).empty().append(`<option value="">Select a municipality</option>`);
+
+                    data.forEach((row)=>{
+                        $(element).append(`<option value="${row.CM_Ref_No}" ${editValue === row.CM_Ref_No ? 'selected' : ''}>${row.CM_City_Municipality_Name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+    function getbrgylist(element, value, editValue=''){
+        $.ajax({
+            url: "<?= base_url('ReferenceMaintenance/getbrgylist') ?>",
+            type: "POST",
+            data:JSON.stringify({citycode: value}),
+            dataType: "JSON",
+            success:(data)=>{
+                if (data.length > 0) {
+                    $(element).empty().append(`<option value="">Select a brgy</option>`);
+
+                    data.forEach((row)=>{
+                        $(element).append(`<option value="${row.BL_Ref_No}" ${editValue === row.BL_Ref_No ? 'selected' : ''}>${row.BL_Barangay_Name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+    function getbranchlist () {
+        $.ajax({
+            url: "<?= base_url('ReferenceMaintenance/getbranchlist') ?>",
+            type: "GET",
+            dataType: "JSON",
+            success:(data)=> {
+                $('#branch_table tbody').empty();
+                data.forEach(row => { 
+                    edit_action = `<a href="#!" class="Edit_btn btn btn-sm btn-link"
+
+                                        data-CBL_Ref_No="${row.CBL_Ref_No}"
+                                        data-CBL_CCL_Ref_No="${row.CBL_CCL_Ref_No}"
+                                        data-CBL_Branch_Code="${row.CBL_Branch_Code}"
+                                        data-CBL_Branch_Name="${row.CBL_Branch_Name}",
+                                        data-CBL_Area="${row.CBL_Area}",
+                                        data-CBL_Municipality="${row.CBL_Municipality}",
+                                        data-CBL_Street_Brgy="${row.CBL_Street_Brgy}",
+
+                                        data-type="branch"
+                                    ><i class="fa-solid fa-pencil"></i></a>`;
+                    if(row.CBL_Status=='Active'){
+                        status_action = `<a data-refno="${row.CBL_Ref_No}" data-desc="${row.CBL_Branch_Name}" data-type="branch" href="#!" class="Delete_btn"><i class="fa-solid fa-xmark"></i></a>`;
+                        status = `<span class="badge bg-success">${row.CBL_Status}</span>`;
+                    }else{
+                        status_action = `<a data-refno="${row.CBL_Ref_No}" data-desc="${row.CBL_Branch_Name}" data-type="branch" href="#!" class="Restore_btn"><i class="fa-solid fa-rotate-left"></i></a>`;
+                        status = `<span class="badge bg-danger">${row.CBL_Status}</span>`;
+                    }
+
+                    tr = `  <tr> 
+                                <td class="text-center">${edit_action} ${status_action}</td> 
+                                <td class="text-center">${row.CCL_Company_Name}</td>
+                                <td class="text-start">${row.CBL_Branch_Code}</td> 
+                                <td class="text-center">${row.CBL_Branch_Name}</td> 
+                                <td class="text-center">${status}</td>
+                            </tr>`;
+
+                    $('#branch_table tbody').append(tr); 
+                });
+            }
+        });
+    }
+
+    $("#NewBranchForm").submit(function(e){
+        e.preventDefault();
+
+        b_company = $('#b_company').val();
+        branch_code = $('#branch_code').val();
+        branch_name = $('#branch_name').val();
+        b_area = $("#area").val();
+        b_city = $("#city").val();
+        b_brgy = $("#brgy").val();
+
+        if (confirm('Are you sure you want to submit?')) { 
+            $("#submit_branch").prop('disabled', true);
+            $.ajax({
+                type: "POST",
+                url:"<?= base_url('ReferenceMaintenance/addbranch')?>",
+                data: 
+                {
+                    b_company: b_company,
+                    branch_code: branch_code,
+                    branch_name: branch_name,
+                    b_area: b_area,
+                    b_city: b_city,
+                    b_brgy: b_brgy
+                },
+                dataType: "JSON",
+                success:function(data){   
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        $('#NewBranchForm')[0].reset();
+                        $("#add_branch_modal").modal('hide');
+                        getbranchlist(); 
+                    } else {
+                        alert(data.message);
+                        $("#submit_branch").prop('disabled', false);
+                    }
+                }
+            });
+        }
+
+    });
+
+    function PopulateBranch(){
+        CBL_Ref_No = details[0];
+        CBL_CCL_Ref_No = details[1];
+        CBL_Branch_Code = details[2];
+        CBL_Branch_Name = details[3];
+        CBL_Area = details[4];
+        CBL_Municipality = details[5];
+        CBL_Street_Brgy = details[6];
+
+        $('#CBL_Ref_No').val(CBL_Ref_No);
+        $('#EditBranchCompany').val(CBL_CCL_Ref_No);
+        $('#EditBranchCode').val(CBL_Branch_Code);
+        $('#EditBranchName').val(CBL_Branch_Name);
+        $('#edit_area').val(CBL_Area);
+        getcitylist('#edit_city', CBL_Area, CBL_Municipality);
+        getbrgylist('#edit_brgy', CBL_Municipality, CBL_Street_Brgy);
+
+        $('#edit_branch_modal').modal('toggle');
+        
+
+    }
 </script>

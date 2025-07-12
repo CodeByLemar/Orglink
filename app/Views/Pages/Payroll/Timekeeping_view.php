@@ -22,6 +22,18 @@
         padding: 4px; /* Adjust padding for better spacing */
     }
 
+    #selected_logs_tbl {
+        font-size: 10px !important;
+        border: 2px solid black;
+        border-collapse: collapse; /* Ensures borders merge properly */
+   }
+
+    #selected_logs_tbl th, 
+    #selected_logs_tbl td {
+        border: 1px solid black; /* Adds borders to table cells */
+        padding: 4px; /* Adjust padding for better spacing */
+    }
+
     #ProcessedTimeLogs_tbl {
         font-size: 10px !important;
         border: 2px solid black;
@@ -124,6 +136,10 @@
                                                             <i class="ki-duotone ki-filter-search fs-3x"><span class="path1"></span><span class="path2"></span></i>
                                                         </div>
                                                     </a>  
+
+                                                    <a href="#" id="validate_logs" class="btn btn-primary font-weight-bold mr-2">
+                                                        <i class="flaticon2-check-mark"></i> Validate Selected Logs
+                                                    </a>
                                                 </div> 
                                             </div>
                                         </div>
@@ -185,7 +201,7 @@
                                             <table id="TimeLogs_tbl" class="table table-striped">
                                                 <thead>
                                                     <tr>
-                                                        <th colspan="17"></th>
+                                                        <th colspan="18"></th>
                                                         <th colspan="8" class="thead_blue text-center fw-bold">RWD (Regular OT)</th>
                                                         <th colspan="8" class="thead_blue text-center fw-bold">RD (Rest day OT)</th>
                                                         <!-- <th style="background-color:#00eaff;position: sticky; top: 0; z-index: 1;" colspan="5" class="text-center fw-bold">ROT</th> -->
@@ -449,4 +465,114 @@
             </div> 
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="validate_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+            <div class="modal-header">
+               <h5 class="modal-title" id="EditDept">Confirm Selected Logs</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <div class="row mt-3">
+                  <div class="col-lg-12">
+                     <div class="col-sm-12 table-responsive table-wrapper">
+                        <table id="selected_logs_tbl" class="table table-striped">
+                           <thead>
+                              <tr>
+                                 <th colspan="17"></th>
+                                 <th colspan="8" class="thead_blue text-center fw-bold">RWD (Regular OT)</th>
+                                 <th colspan="8" class="thead_blue text-center fw-bold">RD (Rest day OT)</th>
+                                 <th colspan="8" class="thead_blue text-center fw-bold">RHNR</th>
+                                 <th colspan="8" class="thead_blue text-center fw-bold">RHRD</th>
+                                 <th colspan="8" class="thead_blue text-center fw-bold">SHNR (Special Hol OT)</th>
+                                 <th colspan="8" class="thead_blue text-center fw-bold">SHRD (Special Hol OT-RD)</th>
+                                 <th></th>
+                              </tr>
+                              <tr>
+                                 <th class="thead_gray text-center fw-bold ps-5">No.</th>
+                                 <th class="thead_gray text-center fw-bold">Company</th>
+                                 <th class="thead_gray text-center fw-bold">Date From</th>
+                                 <th class="thead_gray text-center fw-bold">Date To</th>
+                                 <th class="thead_gray text-center fw-bold">Employee No.</th>
+                                 <th class="thead_gray text-center fw-bold">Employee Name</th>
+                                 <th class="thead_gray text-center fw-bold">Position</th>
+                                 <th class="thead_gray text-center fw-bold">Department</th>
+                                 <th class="thead_gray text-center fw-bold">Late</th>
+                                 <th class="thead_gray text-center fw-bold">Under</th>
+                                 <th class="thead_gray text-center fw-bold">Abs</th>
+                                 <th class="thead_gray text-center fw-bold">LHrs</th>
+                                 <th class="thead_gray text-center fw-bold">WHrs</th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">OverBreak</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Total Overbreak</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP8</th>
+                                 <th class="thead_orangetext-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">Ovt8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+                                 <th class="thead_gray text-center fw-bold">NP8</th>
+                                 <th class="thead_orange text-center fw-bold"><i>Amount</i></th>
+
+                                 <th style="background-color:#00eaff;position: sticky; top: 0; z-index: 1;color:red;" class="text-center fw-bold">Remarks</th>
+                              </tr>
+                           </thead>
+                           <tbody> 
+                           </tbody>
+                           <tfoot></tfoot>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="references">
+               <button type="submit" id="confirm_validate_logs" class="btn btn-sm btn-success">Confirm</button>
+               <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+      </div>
+   </div>
 </div>

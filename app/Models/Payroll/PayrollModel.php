@@ -131,4 +131,30 @@ class PayrollModel extends Model
         $result = $query->getResult(); 
         return $result;
     }
-}
+    // NAG CREATE AKO ISA PANG STORED PROC SIR. FILTERED BY ARRAY REFERENCES (SELECTED CUT_Ref_No)
+    public function getselectedlogsdata($references){
+        $sql = "CALL usp_jtj_gettimelogs_by_refno (?) "; 
+        $params = [$references];
+        $query = $this->db->query($sql,$params);
+        $result = $query->getResult();
+        return  $result;
+    }
+
+    public function insert_record($data, $table)
+    {
+        return $this->db->table($table)->insert($data); 
+    }
+
+    public function insert_batch($table, $data) 
+    {
+        $builder = $this->db->table($table);
+        return $builder->insertBatch($data); 
+    }
+
+    public function update_logs($data, $id, $table, $field)
+    {
+        $builder = $this->db->table($table);
+        $builder->where($field, $id); 
+        return $builder->update($data); 
+    }
+} 

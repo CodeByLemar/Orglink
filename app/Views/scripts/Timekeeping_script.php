@@ -332,6 +332,172 @@
         $('#filter_modal').modal('toggle');
     });
 
+    $(document).on('click', '#validate_logs', function (e) {
+        e.preventDefault();
+
+        let selectedLogs = [];
+
+        $("#validate_logs").prop('disabled', true);
+        $("#validate_logs").addClass('spinner spinner-white spinner-right');
+
+
+        $('input[name="checked_logs"]:checked').each(function () {
+            selectedLogs.push({ reference: $(this).val() });
+        });
+
+
+        if (selectedLogs.length === 0) {
+            alert(`Please select logs to validate.`);
+            $("#validate_logs").prop('disabled', false);
+            $("#validate_logs").removeClass('spinner spinner-white spinner-right');
+            return;
+        }
+
+
+        $.ajax({
+            url: "<?= base_url('Payroll/GetSelectedLogsData') ?>",
+            type: "POST",
+            data: JSON.stringify({ references: selectedLogs }),
+            dataType: "JSON",
+            success: (response) => {
+                $("#references").val(response.References);
+                if ($.fn.DataTable.isDataTable('#selected_logs_tbl')) {
+                    $('#selected_logs_tbl').DataTable().clear().destroy();
+                    $('#selected_logs_tbl tbody').empty();
+                }
+
+                let i = 1;
+                response.data.forEach(row => { 
+                    tr = `  <tr> 
+                                <td class="text-start">${i}</td>
+                                <td class="text-start">${row.CUT_Company_Code}</td>
+                                <td class="text-start">${row.CUT_From}</td>
+                                <td class="text-start">${row.CUT_To}</td>
+                                <td class="text-start">${row.CUT_Client_ID}</td>
+                                <td class="text-start">${row.CUT_Emp_Name}</td>
+                                <td class="text-start">${row.CUT_Position}</td>
+                                <td class="text-start">${row.CUT_Dept}</td>
+
+                                <td class="text-end">${row.CUT_Late}</td>
+                                <td class="text-end">${row.CUT_Undertime}</td>
+                                <td class="text-end">${row.CUT_Absent}</td>
+                                <td class="text-end">${row.CUT_LHrs}</td>
+                                <td class="text-end">${row.CUT_WHrs}</td>
+                                <td class="text-end">${row.CUT_NP}</td>
+                                <td class="text-end">${row.CUT_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_Ovrbreak}</td>
+                                <td class="text-end">${row.CUT_Ovrbreak_Amount}</td>
+
+                                <td class="text-end">${row.CUT_RWD_Ovt}</td>
+                                <td class="text-end">${row.CUT_RWD_Ovt_Amount}</td>
+                                <td class="text-end">${row.CUT_RWD_Ovt8}</td>
+                                <td class="text-end">${row.CUT_RWD_Ovt8_Amount}</td>
+                                <td class="text-end">${row.CUT_RWD_NP}</td>
+                                <td class="text-end">${row.CUT_RWD_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_RWD_NP8}</td>
+                                <td class="text-end">${row.CUT_RWD_NP8_Amount}</td> 
+
+                                <td class="text-end">${row.CUT_RD_Ovt}</td>
+                                <td class="text-end">${row.CUT_RD_Ovt_Amount}</td>
+                                <td class="text-end">${row.CUT_RD_Ovt8}</td>
+                                <td class="text-end">${row.CUT_RD_Ovt8_Amount}</td>
+                                <td class="text-end">${row.CUT_RD_NP}</td>
+                                <td class="text-end">${row.CUT_RD_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_RD_NP8}</td>
+                                <td class="text-end">${row.CUT_RD_NP8_Amount}</td>  
+
+                                <td class="text-end">${row.CUT_RHNR_Ovt}</td>
+                                <td class="text-end">${row.CUT_RHNR_Ovt_Amount}</td>
+                                <td class="text-end">${row.CUT_RHNR_Ovt8}</td>
+                                <td class="text-end">${row.CUT_RHNR_Ovt8_Amount}</td>
+                                <td class="text-end">${row.CUT_RHNR_NP}</td>
+                                <td class="text-end">${row.CUT_RHNR_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_RHNR_NP8}</td> 
+                                <td class="text-end">${row.CUT_RHNR_NP8_Amount}</td> 
+
+                                <td class="text-end">${row.CUT_RHRD_Ovt}</td>
+                                <td class="text-end">${row.CUT_RHRD_Ovt_Amount}</td>
+                                <td class="text-end">${row.CUT_RHRD_Ovt8}</td>
+                                <td class="text-end">${row.CUT_RHRD_Ovt8_Amount}</td>
+                                <td class="text-end">${row.CUT_RHRD_NP}</td>
+                                <td class="text-end">${row.CUT_RHRD_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_RHRD_NP8}</td> 
+                                <td class="text-end">${row.CUT_RHRD_NP8_Amount}</td> 
+
+                                <td class="text-end">${row.CUT_SHNR_Ovt}</td>
+                                <td class="text-end">${row.CUT_SHNR_Ovt_Amount}</td>
+                                <td class="text-end">${row.CUT_SHNR_Ovt8}</td>
+                                <td class="text-end">${row.CUT_SHNR_Ovt8_Amount}</td>
+                                <td class="text-end">${row.CUT_SHNR_NP}</td>
+                                <td class="text-end">${row.CUT_SHNR_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_SHNR_NP8}</td> 
+                                <td class="text-end">${row.CUT_SHNR_NP8_Amount}</td> 
+
+                                <td class="text-end">${row.CUT_SHRD_Ovt}</td>
+                                <td class="text-end">${row.CUT_SHRD_Ovt_Amount}</td>
+                                <td class="text-end">${row.CUT_SHRD_Ovt8}</td>
+                                <td class="text-end">${row.CUT_SHRD_Ovt8_Amount}</td>
+                                <td class="text-end">${row.CUT_SHRD_NP}</td>
+                                <td class="text-end">${row.CUT_SHRD_NP_Amount}</td>
+                                <td class="text-end">${row.CUT_SHRD_NP8}</td> 
+                                <td class="text-end">${row.CUT_SHRD_NP8_Amount}</td> 
+
+                                <td class="text-start">${row.CUT_Remarks ?? ''}</td>
+                            </tr>`;
+                        $('#selected_logs_tbl tbody').append(tr); 
+                    i++;
+                }); 
+
+                $('#selected_logs_tbl').DataTable({
+                    responsive: true,
+                    autoWidth: false,
+                    columnDefs: [
+                        { targets: 2, width: '80px' },
+                        { targets: 3, width: '80px' },
+                        { targets: 5, width: '150px' }
+                    ],
+                    paging: false,
+                    info: true,
+                    ordering: true,
+                    searching: true,
+                }).draw();
+
+                $("#validate_modal").modal('toggle');
+            },
+            error: (xhr, status, error) => {
+                alert("Failed to fetch data. Please try again.");
+            }
+        })
+        .always(() => {
+            $("#validate_logs").prop('disabled', false);
+            $("#validate_logs").removeClass('spinner spinner-white spinner-right');
+        });
+    });
+
+    $(document).on('click', '#confirm_validate_logs', function (e) {
+        e.preventDefault();
+        
+        var references = $("#references").val();
+
+        $.ajax({
+            url: "<?= base_url('Payroll/SaveValidatedLogs') ?>",
+            type: "POST",
+            data:JSON.stringify({
+                references: references
+            }),
+            dataType: "JSON",
+            success:(data)=>{
+                if (data.status === 'success') {
+                    alert(data.message);
+                    $("#validate_modal").modal('hide');
+                } else {
+                    alert(data.message);
+                }
+            }
+        });
+    });
+
+
     function retrieveuploadedlogs(iCompany,ifrom,ito){
         $.ajax({
             type: "POST",
@@ -347,8 +513,10 @@
                 $('#TimeLogs_tbl').DataTable().destroy();
                 $('#TimeLogs_tbl tbody').empty(); 
                 var i = 1;
+                // NAD ADD AKO ISANG COLUMN DUN SA STORED PROC MO SIR. YUNG CUT_Ref_No
                 data.forEach(row => { 
                     tr = `  <tr> 
+                                <td class="text-center"><input type="checkbox" value="${row.CUT_Ref_No}" name="checked_logs"/></td>
                                 <td class="text-start">${i}</td>
                                 <td class="text-start">${row.CUT_Company_Code}</td>
                                 <td class="text-start">${row.CUT_From}</td>

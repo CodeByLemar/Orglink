@@ -137,7 +137,15 @@ class ReferenceMaintenance extends BaseController
                     );
                     $this->ReferenceMaintenanceModel->UpdateCompany($refno,$data);
 
-                    break;
+                break;
+                case 'branch':
+                    $data = array(
+                        'CBL_Status'        => $status,
+                        'CBL_Audit_User'    => session('u_id'),
+                        'CBL_Audit_Date'    => $current_date
+                    );
+                $this->ReferenceMaintenanceModel->UpdateBranch($refno,$data);
+                break;
                 case 'dept':
                     $data = array(
                         // 'CCL_Company_Code'  
@@ -332,4 +340,86 @@ class ReferenceMaintenance extends BaseController
             throw $th;
         }
     }
+
+    public function addbranch(){
+        try {
+            $request = \Config\Services::request();
+            
+            $company_code = $request->getPost('b_company');
+            $branch_code = $request->getPost('branch_code');
+            $branch_name = $request->getPost('branch_name');
+            $area = $request->getPost('b_area');
+            $city = $request->getPost('b_city');
+            $brgy = $request->getPost('b_brgy');
+
+            $data = [
+                "CBL_CCL_Ref_No" => $company_code,
+                "CBL_Branch_Code" => $branch_code,
+                "CBL_Branch_Name" => $branch_name,
+                "CBL_Area" => $area,
+                "CBL_Municipality" => $city,
+                "CBL_Street_Brgy" => $brgy,
+                "CBL_Status" => "Active",
+                "CBL_Audit_User" => session('u_id'),
+                "CBL_Audit_Date" => $this->current_date()
+            ];
+
+            $result = $this->ReferenceMaintenanceModel->insert_record($data, 'client_branch_list');
+
+            if ($result) {
+                return $this->response->setJSON([
+                    "status" => "success",
+                    "message" => "Branch created successfully"
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Failed to insert branch"
+                ]);
+            }
+
+        
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    private function current_date(){
+        $current_date = '';
+        $getcurrentdate = $this->ReferenceMaintenanceModel->getcurrentdate();
+            foreach($getcurrentdate as $tmp){
+                $current_date = $tmp->currentdatetime;
+        }
+
+        return $current_date;
+    }
+
+    public function getbranchlist(){
+        return $this->response->setJSON(
+            $this->ReferenceMaintenanceModel->getbranchlist()
+        );
+    }
+
+    public function getarealist() {
+        return $this->response->setJSON(
+            $this->ReferenceMaintenanceModel->getarealist()
+        );
+    }
+
+    public function getcitylist(){
+        $requestJson = $this->request->getJSON();
+        $areacode = $requestJson->areacode;
+        return $this->response->setJSON(
+            $this->ReferenceMaintenanceModel->getcitylist($areacode)
+        );
+    }
+
+    public function getbrgylist(){
+        $requestJson = $this->request->getJSON();
+        $citycode = $requestJson->citycode;
+        return $this->response->setJSON(
+            $this->ReferenceMaintenanceModel->getbrgylist($citycode)
+        );
+    }
+
 }

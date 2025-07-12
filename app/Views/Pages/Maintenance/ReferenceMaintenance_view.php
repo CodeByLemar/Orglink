@@ -43,6 +43,13 @@
                        Company
                     </button>
 
+                    <button id="branch_btn" value="branch" type="button" class="refbtns btn-shadow btn btn-sm btn-primary">
+                           <span class="btn-icon-wrapper pr-2 opacity-7"> 
+                                 <i class="fa-solid fa-building fa-w-20"></i>
+                           </span>
+                       Branch
+                    </button>
+
                     <button id="dept_btn" value="dept" type="button" class="refbtns btn-shadow btn btn-sm btn-dark">
                            <span class="btn-icon-wrapper pr-2 opacity-7"> 
                                  <i class="fa-solid fa-people-group fa-w-20"></i>
@@ -89,6 +96,30 @@
                                             <th class="text-center">Company Code</th>
                                             <th class="text-start">Company Name</th> 
                                             <th class="text-center">Cutoff</th> 
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="branch_div" class="card-px text-start py-1 my-1">
+                            <div class="text-end mb-5">
+                                <button id="add_branch_btn" value="branch" type="button" class="btn-shadow btn btn-sm btn-primary d-flex" data-bs-toggle="modal" data-bs-target="#add_branch_modal">
+                                    <span class="btn-icon-wrapper pr-2 opacity-7"> 
+                                            <i class="fa-solid fa-plus fa-w-20"></i>
+                                    </span> Add Branch
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <h2 class="text-center mb-5">Branch List</h2>
+                                <table style="width: 100%;" class="table table-hover table-striped table-bordered" id="branch_table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Action</th>
+                                            <th class="text-center">Company Name</th>
+                                            <th class="text-start">Branch Code</th> 
+                                            <th class="text-center">Branch Name</th> 
                                             <th class="text-center">Status</th>
                                         </tr>
                                     </thead>
@@ -279,6 +310,167 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="add_branch_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="NewBranchForm" action="#!" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="AddNewBranch">Add New Branch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"> 
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="b_company">Company:</label>
+                                <input type="hidden" id="CBL_Ref_No"> 
+                                <select class="form-control" name="b_company" id="b_company" required>
+                                    <option value="">Select a company</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="branch_code">Branch Code:</label>
+                                <input type="text" class="form-control" oninput="this.value = this.value.toUpperCase();" name="branch_code" id="branch_code" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="branch_name">Branch Name:</label>
+                                <input type="text" class="form-control" oninput="this.value = this.value.toUpperCase();" name="branch_name" id="branch_name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="area">Area/Province :</label>
+                                <select name="area" id="area" class="form-control" onchange="getcitylist('#city', this.value)" required>
+                                    <option value="">Select Province</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="city">City/Municipality :</label>
+                                <select name="city" id="city" class="form-control" onchange="getbrgylist('#brgy', this.value)" required>
+                                    <option value="">Select province first</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="brgy">Street/Brgy:</label>
+                                <select name="brgy" id="brgy" class="form-control" required>
+                                    <option value="">Select city first</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submit_branch" type="submit" class="btn btn-sm btn-success">Submit</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit_branch_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="EditBranchForm" action="#!" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="EditDept">Edit Branch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"> 
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="EditBranchCompany">Company:</label>
+                                <!-- <input type="text" class="form-control" name="DCompanyCode" id="DCompanyCode" required> -->
+                                <input type="hidden" class="form-control" name="CBL_Ref_No" id="CBL_Ref_No"> 
+                                <select class="form-control" name="EditBranchCompany" id="EditBranchCompany" required>
+                                    <option value="">- Select -</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="EditBranchCode">Branch Code:</label>
+                                <input type="text" class="form-control" name="EditBranchCode" id="EditBranchCode" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="EditBranchName">Department Name:</label>
+                                <input type="text" class="form-control" name="EditBranchName" id="EditBranchName" required>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="edit_area">Area/Province :</label>
+                                <select name="edit_area" id="edit_area" class="form-control" onchange="getcitylist('#edit_city', this.value)" required>
+                                    <option value="">Select Province</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="edit_city">City/Municipality :</label>
+                                <select name="edit_city" id="edit_city" class="form-control" onchange="getbrgylist('#edit_brgy', this.value)" required>
+                                    <option value="">Select province first</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="fw-bold" for="edit_brgy">Street/Brgy:</label>
+                                <select name="edit_brgy" id="edit_brgy" class="form-control" required>
+                                    <option value="">Select city first</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-sm btn-success">Edit</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <div class="modal fade" id="add_dept_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
