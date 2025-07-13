@@ -174,6 +174,11 @@
                                                                 <label class="fw-bold" for="NewClientID">Client Employee ID Number:</label>
                                                                 <input type="text" class="form-control" name="NewClientID" id="NewClientID">
                                                             </div>
+
+                                                            <div class="col-sm-4">
+                                                                <label class="fw-bold" for="Newbioclock_id">BioClock ID Number:</label>
+                                                                <input type="text" class="form-control" name="Newbioclock_id" id="Newbioclock_id">
+                                                            </div>
                                                         </div>
                                                         <div class="row mt-5">
                                                             <div class="col-sm-4">
@@ -223,6 +228,10 @@
                                                             <div class="col-sm-4">
                                                                 <label class="fw-bold" for="ClientID">Client Employee ID Number:</label>
                                                                 <input type="text" class="form-control" name="ClientID" id="ClientID">
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <label class="fw-bold" for="bioclock_id">BioClock ID Number:</label>
+                                                                <input type="text" class="form-control" name="bioclock_id" id="bioclock_id">
                                                             </div>
                                                         </div>
                                                         <div class="row mt-5">

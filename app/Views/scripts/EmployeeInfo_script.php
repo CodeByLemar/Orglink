@@ -164,12 +164,14 @@
                     NewCompanyDesc: $('#NewCompanyDesc').val(),
                     NewDepartmentDesc: $('#NewDepartmentDesc').val(),
                     NewSectionDesc: $('#NewSectionDesc').val(),
-                    NewPositionDesc: $('#NewPositionDesc').val()
+                    NewPositionDesc: $('#NewPositionDesc').val(),
+                    NewBioClockId: $('#Newbioclock_id').val()
                 });
             }else{
                 return Object.assign(commonFields, {
                     ClientID: $('#ClientID').val(),
-                    Client_Ref_No: $('#Client_Ref_No').val()
+                    Client_Ref_No: $('#Client_Ref_No').val(),
+                    BioClockId: $('#bioclock_id').val()
                 });
             }
 

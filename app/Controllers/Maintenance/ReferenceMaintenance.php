@@ -422,4 +422,35 @@ class ReferenceMaintenance extends BaseController
         );
     }
 
+    public function EditBranch(){
+        try {
+            $request = \Config\Services::request();
+            
+            $CBL_Ref_No = $request->getPost('CBL_Ref_No');
+            $company = $request->getPost('company');
+            $branch_code = $request->getPost('branch_code');
+
+            $branch_name = $request->getPost('branch_name');
+            $area = $request->getPost('area');
+            $city = $request->getPost('city');
+            $brgy = $request->getPost('brgy');
+
+            $data = [
+                "CBL_CCL_Ref_No" => $company,
+                "CBL_Branch_Code" => $branch_code,
+                "CBL_Branch_Name" => $branch_name,
+                "CBL_Area" => $area,
+                "CBL_Municipality" => $city,
+                "CBL_Street_Brgy" => $brgy,
+                "CBL_Status" => "Active",
+                "CBL_Audit_User" => session('u_id'),
+                "CBL_Audit_Date" => $this->current_date()
+            ];
+
+            $this->ReferenceMaintenanceModel->UpdateBranch($CBL_Ref_No, $data); 
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
 }

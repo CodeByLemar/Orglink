@@ -41,6 +41,7 @@ class Employee extends BaseController
             if(sizeof($checkduplicate)==0){
                 $data = array(
                     'CEL_Client_ID'             => $requestJson->NewClientID,
+                    'CEL_BioClock_ID'           => $requestJson->NewBioClockId,
                     'CEL_Last_Name'             => $requestJson->lastName,
                     'CEL_First_Name'            => $requestJson->firstName,
                     'CEL_Middle_Name'           => $requestJson->middleName,
@@ -97,6 +98,7 @@ class Employee extends BaseController
                 }
                 $data = array(
                     'CEL_Client_ID'             => $requestJson->ClientID,
+                    'CEL_BioClock_ID'           => $requestJson->BioClockId,
                     'CEL_Last_Name'             => $requestJson->lastName,
                     'CEL_First_Name'            => $requestJson->firstName,
                     'CEL_Middle_Name'           => $requestJson->middleName,

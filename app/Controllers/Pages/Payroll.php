@@ -197,18 +197,20 @@ class Payroll extends BaseController
     }
 
     public function generate_payslip(){
-        $request = \Config\Services::request(); 
-       
-        $From       = $request->getPost('From');
-        $To         = $request->getPost('To');
-        $Company    = $request->getPost('Company');
-        $Client     = $request->getPost('Client');
+        $requestJson = $this->request->getJSON();
+        $From = $requestJson->From ?? null;
+        $To = $requestJson->To ?? null;
+        $Company = $requestJson->Company ?? null;
+        $clientId = $requestJson->clientId;
+        
         session()->set('From', $From); 
         session()->set('To', $To); 
         session()->set('Company', $Company);  
-        session()->set('Client', $Client);  
+        session()->set('Client', $clientId);  
         
-        return redirect()->to('/Payroll/payslip_pdf');
+        return $this->response->setJSON([
+            'payslipUrl' => base_url('Payroll/payslip_pdf')
+        ]);
     }
 
     public function payslip_pdf(){ 
@@ -216,10 +218,10 @@ class Payroll extends BaseController
         $pdf = new TCPDF();
         $pdf->AddPage();
         
-        $From       = session('From');
-        $To         = session('To');
-        $Company    = session('Company');
-        $Client     = session('Client');
+        $Company = session('Company');
+        $From = session('From');
+        $To = session('To');
+        $clientId = session('Client');
         
         $data = $this->PayrollModel->getemployeedetails($Company,$From,$To,$Client); 
         $data = [
@@ -259,7 +261,7 @@ class Payroll extends BaseController
         $Company    = $request->getPost('Company'); 
         session()->set('From', $From); 
         session()->set('To', $To); 
-        session()->set('Company', $Company); 
+        session()->set('Company', $Company);    
         
         return redirect()->to('/Payroll/print_register_pdf');
     }
@@ -420,6 +422,69 @@ class Payroll extends BaseController
 
         return $current_date;
             
+    }
+
+    public function upload_payslip()
+    {
+        $referenceNo = $this->request->getPost('employee');
+        $file = $this->request->getFile('file');
+
+        if (!$referenceNo || !$file || !$file->isValid() || $file->hasMoved()) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Invalid upload.'
+            ]);
+        }
+
+        $uploadPath = FCPATH . 'uploads/Payslips/' . date('Y-m-d') . '/';
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true); 
+        }
+
+        $newName = $referenceNo . '.' . $file->getClientExtension();
+        $file->move($uploadPath, $newName);
+
+        $paysliplocation = 'uploads/Payslips/' . date('Y-m-d') . '/' . $newName;
+
+        return $this->email_employee_payslip($referenceNo, $paysliplocation);
+    }
+
+    public function email_employee_payslip($referenceNo, $paysliplocation)
+    {
+
+        $email = \Config\Services::email();
+
+        $email->setFrom('orglinkit@gmail.com', 'Orglink_IT');
+        $email->setTo('lovereign21@gmail.com');
+        $email->setSubject('Payslip for the Period');
+        $email->setMessage('Please find your payslip attached.');
+
+
+        $filePath = FCPATH . $paysliplocation;
+        $email->attach($filePath);
+
+        if ($email->send()) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Payslip is sent successfully!'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $email->printDebugger(['headers'])
+            ]);
+        }
+    }
+
+    public function getemployeelist()
+    {
+        $requestJson = $this->postRequest->getJSON(); 
+        $company = $requestJson->company;
+
+        return $this->response->setJSON(
+            $this->PayrollModel->getemployeebycompanyId($company)
+        );
     }
 }
 ?>

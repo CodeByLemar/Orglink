@@ -856,7 +856,39 @@
         getbrgylist('#edit_brgy', CBL_Municipality, CBL_Street_Brgy);
 
         $('#edit_branch_modal').modal('toggle');
-        
-
     }
+
+    $('#EditBranchForm').submit(function(e){
+        e.preventDefault();
+
+        CBL_Ref_No      = $('#CBL_Ref_No').val();
+        company   = $('#EditBranchCompany').val();
+        branch_code     = $('#EditBranchCode').val(); 
+        branch_name    = $('#EditBranchName').val(); 
+        area    = $('#edit_area').val();
+        city    = $('#edit_city').val();
+        brgy = $("#edit_brgy").val();
+
+        if (confirm('Are you sure you want to submit?')) {  
+            $.ajax({
+                type: "POST",
+                url:"<?php echo base_url('ReferenceMaintenance/EditBranch');?>",
+                data: 
+                {
+                    CBL_Ref_No: CBL_Ref_No,
+                    company: company,
+                    branch_code: branch_code,
+                    branch_name: branch_name,
+                    area: area,
+                    city: city,
+                    brgy: brgy
+                },
+                success:function(data){
+                    $('#EditBranchForm')[0].reset();
+                    $("#edit_branch_modal").modal('hide');
+                    getbranchlist(); 
+                }
+            });
+        }
+    });
 </script>

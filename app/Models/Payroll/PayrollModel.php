@@ -157,4 +157,15 @@ class PayrollModel extends Model
         $builder->where($field, $id); 
         return $builder->update($data); 
     }
+
+    public function getemployeebycompanyId($code)
+    {
+        return $this->db->table('client_employee_list')
+            ->select("CEL_Client_ID, CONCAT(CEL_Last_Name,', ',CEL_First_Name) AS Employee")
+            ->join('client_company_list', 'CEL_Company = CCL_Ref_No', 'inner')
+            ->where('CCL_Company_Code', $code)
+            ->orderBy('Employee', 'asc')
+            ->get()
+            ->getResultArray();
+    }
 } 

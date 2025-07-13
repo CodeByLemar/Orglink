@@ -6,7 +6,10 @@
 <script src="<?php echo base_url('assets/js/Datatable/dataTables.buttons.min.js');?>"></script>
 <script src="<?php echo base_url('assets/js/Datatable/jszip.min.js');?>"></script>
 <script src="<?php echo base_url('assets/js/Datatable/buttons.html5.min.js');?>"></script> 
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 <script> 
+
+Dropzone.autoDiscover = false;
 
 $(document).ready(function(){
 
@@ -14,6 +17,68 @@ $(document).ready(function(){
     
     getcompanylist(); 
 
+
+        const dz = new Dropzone("#my-dropzone", {
+            autoProcessQueue: false,
+            maxFiles: 1, 
+            maxFilesize: 10, // MB
+            acceptedFiles: "application/pdf",
+            addRemoveLinks: true,
+            headers: {
+                'X-CSRF-TOKEN': "<?= csrf_hash() ?>"
+            },
+            init: function () {
+                const dzInstance = this;
+
+
+                dzInstance.on("addedfile", function(file) {
+                    if (dzInstance.files.length > 1) {
+                        dzInstance.removeFile(dzInstance.files[0]);
+                    }
+                });
+
+                $('#submit_payslip').click(function () {
+                    const employee = $("#employee").val();
+                    
+
+                    if (employee === "") {
+                        alert(`Please select an employee`);
+                        return;
+                    }
+
+
+                    if (dzInstance.getQueuedFiles().length > 0) {
+                        dzInstance.processQueue();
+                    } else {
+                        message('warning', 'Please add a file.', 2000);
+                    }
+                });
+
+                dzInstance.on("sending", function(file, xhr, formData) {
+                    formData.append("employee", $("#employee").val());
+                });
+
+                dzInstance.on("success", function(file, response) {
+                    if (typeof response === 'string') {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            console.error("Invalid JSON from server");
+                            console.log('Unexpected response from server.');
+                            return;
+                        }
+                    }
+
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        dzInstance.removeAllFiles(true);
+                        $("#payslip_modal").modal('hide');
+                    } else {
+                        alert(response.message);
+                    }
+                });
+            }
+        });
 
 
 });
@@ -101,13 +166,14 @@ $(document).ready(function(){
                 data = JSON.parse(data); 
                 $('#iCompany').empty();  
                 $('#iCompany').append(`<option value="">- Select Company -</option>`);  
+                $('#company').empty().append(`<option value="">- Select Company -</option>`);
                 
                 data.forEach(row => {   
 
                     if(row.CCL_Status=='Active'){
                         option = `<option data-cutoff1_from="${row.CCL_Cutoff1_From}" data-cutoff1_to="${row.CCL_Cutoff1_To}" data-cutoff2_from="${row.CCL_Cutoff2_From}" data-cutoff2_to="${row.CCL_Cutoff2_To}" value="${row.CCL_Company_Code}">${row.CCL_Company_Name}</option>`;
                         $('#iCompany').append(option); 
-                        
+                        $('#company').append(option); 
                     } 
                     
                 });
@@ -271,30 +337,34 @@ $(document).ready(function(){
 
     });
 
-    $(document).on('click','.generate_payslip', function(){
-        Company = $('#iCompany').val();
-        From = $('#ifrom').val();
-        To = $('#ito').val();
-        Client = $(this).data('id');
+    $(document).on('click', '.generate_payslip', function () {
+        let Company = $('#iCompany').val();
+        let From = $('#ifrom').val();
+        let To = $('#ito').val();
+        let Client = $(this).data('id');
 
-        console.log(Company,From,To,Client);
+        // console.log(Company, From, To, Client);
 
         $.ajax({
             type: "POST",
-            url:"<?php echo base_url('Payroll/generate_payslip');?>",
-            data: 
-            {
-                Company:Company,
-                From:From,
-                To:To,
-                Client:Client 
+            url: "<?= base_url('Payroll/generate_payslip') ?>",
+            data: JSON.stringify({
+                Company: Company,
+                From: From,
+                To: To,
+                clientId: Client
+            }),
+            contentType: "application/json", 
+            dataType: "json",
+            success: function (data) {
+                window.open(data.payslipUrl, '_blank');
             },
-            success:function(data){
-                window.open('<?= base_url('Payroll/payslip_pdf') ?>', '_blank');   
+            error: function (xhr) {
+                console.error("Error:", xhr.responseText);
             }
         });
-        
-    })
+    });
+
 
     $(document).on('click','#print_register',function(){
         Company = $('#iCompany').val();
@@ -316,4 +386,21 @@ $(document).ready(function(){
             }
         });
     });
+
+    function loadEmployeeList(value){
+        $.ajax({
+            url: "<?= base_url('Payroll/getemployeelist') ?>",
+            type: "POST",
+            data:JSON.stringify({company: value}),
+            dataType:"JSON",
+            success:(data)=>{
+                if (data.length > 0) {
+                    $("#employee").empty().append(`<option value="">- Select an employee -</option>`);
+                    data.forEach((row)=>{
+                         $("#employee").append(`<option value="${row.CEL_Client_ID}">${row.Employee}</option>`);
+                    });
+                }
+            }
+        });
+    }
 </script>

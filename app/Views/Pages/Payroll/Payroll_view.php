@@ -201,6 +201,7 @@
                                             <div class="col-sm-4 mb-10">
                                                 <div class="form-group mb-3">
                                                     <a id="print_register" href="#!" class="btn btn-sm btn-primary dt-button"><i class="fa-solid fa-print"></i> Print Register</a>
+                                                    <a id="send_pay_slip" href="#!" class="btn btn-sm btn-danger dt-button"><i class="fa-solid fa-print"></i> Send Payslip</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -331,4 +332,52 @@
             </div>
         </div>
     </div>
+</div>
+
+
+<div class="modal fade" id="payslip_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+            <div class="modal-header">
+               <h5 class="modal-title" id="EditDept">Confirm Selected Logs</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <div class="row mt-3">
+                  <div class="col-lg-12 mb-2">
+                    <div class="form-group">
+                        <label for="company" class="fw-bold">Company : </label>
+                        <select name="company" id="company" onchange="loadEmployeeList(this.value)" class="form-control">
+                            <option value="">- Select -</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-12 mb-2">
+                    <div class="form-group">
+                        <label for="company" class="fw-bold">Client / Employee </label>
+                        <select name="employee" id="employee" class="form-control">
+                            <option value="">select an employee</option>
+                        </select>
+
+                    </div>
+                  </div>
+
+                  <div class="col-md-12 mb-3 mt-4">
+                    <div class="form-group">
+                        <label class="form-label"><b>Payslip File <span class="payslip"></span></b></label>
+                        <form action="<?= base_url('Payroll/upload_payslip') ?>" class="dropzone" id="my-dropzone">
+                            <?= csrf_field() ?>
+                        </form>
+                    </div>
+                </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button type="submit" id="submit_payslip" class="btn btn-sm btn-success">Confirm</button>
+               <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+      </div>
+   </div>
 </div>

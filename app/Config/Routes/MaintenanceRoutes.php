@@ -88,7 +88,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('getarealist', 'Maintenance\ReferenceMaintenance::getarealist');
         $routes->post('getcitylist', 'Maintenance\ReferenceMaintenance::getcitylist');
         $routes->post('getbrgylist', 'Maintenance\ReferenceMaintenance::getbrgylist');
-        
+        $routes->post('EditBranch', 'Maintenance\ReferenceMaintenance::EditBranch');
         
     });
 

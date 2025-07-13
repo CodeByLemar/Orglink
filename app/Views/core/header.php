@@ -20,6 +20,7 @@
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
 
     <link href="/assets/plugins/custom/jstree/jstree.bundle.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 
     <script>
         // Frame-busting to prevent site from being loaded within a frame without permission (click-jacking)
