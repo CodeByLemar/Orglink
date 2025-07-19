@@ -198,10 +198,10 @@
                                             <hr>
                                         </div>
                                         <div class="row">
-                                            <div class="col-sm-4 mb-10">
+                                            <div class="col-sm-12 mb-10">
                                                 <div class="form-group mb-3">
                                                     <a id="print_register" href="#!" class="btn btn-sm btn-primary dt-button"><i class="fa-solid fa-print"></i> Print Register</a>
-                                                    <a id="send_pay_slip" href="#!" class="btn btn-sm btn-danger dt-button"><i class="fa-solid fa-print"></i> Send Payslip</a>
+                                                    <a id="send_bulk_email" href="#!" class="btn btn-sm btn-danger dt-button"><i class="fa-solid fa-envelope"></i> Send Payslips</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -225,7 +225,7 @@
                                             <table id="Payroll_tbl" class="table table-striped">
                                             <thead>
                                                     <tr>
-                                                        <th colspan="17"></th>
+                                                        <th colspan="19"></th>
                                                         <th style="background-color:#ffee00;" colspan="8" class=" text-center fw-bold">RWD (Regular OT)</th>
                                                         <th style="background-color:#ffee00;" colspan="8" class=" text-center fw-bold">RD (Rest day OT)</th>
                                                         <!-- <th style="background-color:#00eaff;position: sticky; top: 0; z-index: 1;" colspan="5" class="text-center fw-bold">ROT</th> -->
@@ -237,12 +237,14 @@
                                                         <th></th>
                                                     </tr>
                                                     <tr>
+                                                        <th></th>
                                                         <th class="thead_gray text-center fw-bold ps-5">No.</th>
                                                         <th class="thead_gray text-center fw-bold">Company</th>
                                                         <th class="thead_gray text-center fw-bold">Date From</th>
                                                         <th class="thead_gray text-center fw-bold">Date To</th>
                                                         <th class="thead_gray text-center fw-bold">Employee No.</th> 
                                                         <th class="thead_gray text-center fw-bold">Employee Name</th>
+                                                        <th class="thead_gray text-center fw-bold">Status</th>
                                                         <th class="thead_gray text-center fw-bold">Position</th>
                                                         <th class="thead_gray text-center fw-bold">Department</th>
                                                         <th class="thead_gray text-center fw-bold">Late</th>

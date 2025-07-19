@@ -192,10 +192,15 @@ $(document).ready(function(){
         getpayrollperiods(cutoff1_from,cutoff1_to,cutoff2_from,cutoff2_to);
 
     });
+
     $(document).on('click', '#GeneratePayroll', function() {
         iCompany = $('#iCompany').val();
         ifrom = $('#ifrom').val();
         ito = $('#ito').val(); 
+
+            let $btn = $(this);
+            $btn.prop('disabled', true);
+            $btn.html(`<span class="spinner-border spinner-border-sm mr-2"></span> Generating...`);
         
         $.ajax({
             type: "POST",
@@ -208,18 +213,27 @@ $(document).ready(function(){
             success:function(data){ 
                 data = JSON.parse(data); 
 
+                $btn.prop('disabled', false);
+                $btn.html(`Generate`);
+
                 $('#Payroll_tbl').DataTable().destroy();
                 $('#Payroll_tbl tbody').empty(); 
                 var i = 1;
                 data.forEach(row => { 
+                    let rowClass = row.CUT_Status === 'Pay Hold' ? 'table-danger' : '';
                     payslip_btn = `<a title="Print Employee Payslip" href="#!" class="btn btn-sm btn-info generate_payslip" data-id="${row.CUT_Client_ID}"><i class="fa-regular fa-file-pdf"></i></a>`;
-                    tr = `  <tr> 
-                                <td class="text-start">${i}</td>
+                    tr = `  <tr class="${rowClass}"> 
+                                <td class="text-center">
+                                    <input type="checkbox" value="${row.CUT_Ref_No}" name="checked_reference" ${row.CUT_Status === 'Pay Hold' ? 'disabled' : ''}/>
+                                </td>
+                                <td>${i}</td>
                                 <td class="text-start">${row.CUT_Company_Code}</td>
                                 <td class="text-start">${row.CUT_From}</td>
                                 <td class="text-start">${row.CUT_To}</td>
                                 <td class="text-start">${row.CUT_Client_ID}</td>
                                 <td class="text-start">${row.CUT_Emp_Name}</td>
+                                <td class="text-start font-weight-bold ${row.CUT_Status === 'Pay Hold' ? 'text-danger' : 'text-primary'}"
+                                >${row.CUT_Status}</td>
                                 <td class="text-start">${row.CUT_Position}</td>
                                 <td class="text-start">${row.CUT_Dept}</td>
 
@@ -403,4 +417,44 @@ $(document).ready(function(){
             }
         });
     }
+
+    
+    $(document).on('click', '#send_bulk_email', function () {
+        let SelectedReference = [];
+
+        let $btn = $(this);
+        $btn.prop('disabled', true);
+        $btn.html(`<span class="spinner-border spinner-border-sm mr-2"></span> Sending...`);
+
+        $('input[name="checked_reference"]:checked').each(function () {
+            SelectedReference.push({ reference: $(this).val() });
+        });
+
+        if (SelectedReference.length === 0) {
+            alert(`Please select employee to email.`);
+            $btn.prop('disabled', false);
+            $btn.html(`Send Payslips`);
+            return;
+        }
+
+        $.ajax({
+            url: "<?= base_url('Payroll/ProcessSelectedPayslip') ?>",
+            type: "POST",
+            data: JSON.stringify({ reference: SelectedReference }),
+            dataType: "JSON",
+            success: (data) => {
+                // console.log(data);
+                alert(data.message);
+                $btn.prop('disabled', false);
+                $btn.html(`<i class="fa-solid fa-envelope"></i> Send Payslips`);
+                $("#GeneratePayroll").click();
+            },
+            error: () => {
+                alert("An error occurred while sending emails.");
+                $btn.prop('disabled', false);
+                $btn.html(`<i class="fa-solid fa-envelope"></i> Send Payslips`);
+            }
+        });
+    });
+
 </script>

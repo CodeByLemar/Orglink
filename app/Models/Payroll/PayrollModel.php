@@ -168,4 +168,27 @@ class PayrollModel extends Model
             ->get()
             ->getResultArray();
     }
+
+    public function getemployeedetailsbyId($code)
+    {
+        return $this->db->table('client_uploaded_timelogs')
+            ->select('*')
+            ->join('client_employee_list', 'CUT_Client_ID=CEL_Client_ID', 'inner')
+            ->where('CUT_Email_Sent', 0)
+            ->where('CEL_Payroll_Status', 'Active')
+            ->where('CUT_Ref_No', $code)
+            ->get()
+            ->getResult();
+    }
+
+    public function CheckEmployeePayrollStatus($code)
+    {
+        $result = $this->db->table('client_employee_list')
+            ->select('CEL_Payroll_Status')
+            ->where('CEL_Client_ID', $code)
+            ->get()
+            ->getRow();
+
+        return $result->CEL_Payroll_Status ?? null;
+    }
 } 

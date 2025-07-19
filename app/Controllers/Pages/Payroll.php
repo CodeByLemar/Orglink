@@ -321,7 +321,7 @@ class Payroll extends BaseController
             
         foreach($result as $row) {
 
-            $this->validate_logs_main($row->CUT_Ref_No);
+            $this->validate_logs_main($row->CUT_Ref_No, $row->CUT_Client_ID);
             
             $data[] = [
                 "VPDL_Emp_No" => $row->CUT_Client_ID,
@@ -410,7 +410,16 @@ class Payroll extends BaseController
     }
 
     private function validate_logs_main($reference){
-        $this->PayrollModel->update_logs(["CUT_Status" => "Validated"], $reference, 'client_uploaded_timelogs', 'CUT_Ref_No');
+        
+        $employee_status = $this->PayrollModel->CheckEmployeePayrollStatus($client_id);
+                
+        if ($employee_status === 'Inactive') {
+            $status = 'Pay Hold';
+        } else {
+            $status = 'Validated';
+        }
+
+        $this->PayrollModel->update_logs(["CUT_Status" => $status], $reference, 'client_uploaded_timelogs', 'CUT_Ref_No');
     }
 
     private function current_date(){
@@ -486,5 +495,89 @@ class Payroll extends BaseController
             $this->PayrollModel->getemployeebycompanyId($company)
         );
     }
+
+    public function ProcessSelectedPayslip()
+    {
+        $data = $this->request->getJSON(true);
+        $sent = 0;
+        $unsent = 0;
+
+        foreach ($data['reference'] as $ref) {
+            $status = $this->email_payslip($ref['reference']);
+
+            if ($status) {
+                $sent++;
+            } else {
+                $unsent++;
+            }
+        }
+
+        if ($sent === count($data['reference'])) {
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Payslip sent successfully"
+            ]);
+        } else {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "$sent payslips sent, $unsent failed"
+            ]);
+        }
+    }
+
+    private function email_payslip($clientId)
+    {
+        $result = $this->PayrollModel->getemployeedetailsbyId($clientId);
+
+        if (!$result || !isset($result[0])) {
+            log_message('error', "No employee data found for ID: $clientId");
+            return false;
+        }
+
+        $emp = $result[0];
+        $from = $emp->CUT_From;
+        $to   = $emp->CUT_To;
+
+        $data = [
+            'emp'  => $emp,
+            'from' => $from,
+            'to'   => $to
+        ];
+
+        $pdf = new \TCPDF();
+        $pdf->AddPage();
+        $html = view('Pages/Payroll/Payslip_template_view', $data);
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $savePath = WRITEPATH . 'payslips/';
+        if (!is_dir($savePath)) {
+            mkdir($savePath, 0777, true);
+        }
+
+        $filename = $savePath . $emp->CUT_Client_ID . '_payslip_' . date('Ymd_His') . '.pdf';
+        $pdf->Output($filename, 'F');
+
+        $email = \Config\Services::email(true);
+        $email->setFrom('orglinkit@gmail.com', 'Orglink_IT');
+        $email->setTo($emp->CEL_Email);
+        $email->setSubject('Your Payslip for ' . date('F Y', strtotime($from)));
+        $email->setMessage("Dear " . $emp->CUT_Emp_Name . ",<br><br>Attached is your payslip for the period {$from} to {$to}.<br><br>Regards,<br>HR Team");
+        $email->attach($filename);
+
+        $sendSuccess = $email->send();
+
+        unlink($filename);
+
+        $email->clear(true);
+
+        if ($sendSuccess) {
+            $this->PayrollModel->update_logs(['CUT_Email_Sent' => 1], $clientId, 'client_uploaded_timelogs', 'CUT_Ref_No');
+            return true;
+        } else {
+            log_message('error', 'Failed to send payslip to ' . $emp->CEL_Email . '. Error: ' . $email->printDebugger(['headers']));
+            return false;
+        }
+    }
+
 }
 ?>
