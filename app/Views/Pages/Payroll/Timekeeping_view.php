@@ -570,8 +570,9 @@
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="references">
-               <button type="submit" id="confirm_validate_logs" class="btn btn-sm btn-success">Confirm</button>
                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+               <button type="submit" id="confirm_validate_logs" class="btn btn-sm btn-success">Validate logs</button>
+               <button type="submit" id="hold_payroll" class="btn btn-sm btn-danger">Pay Hold</button>
             </div>
       </div>
    </div>

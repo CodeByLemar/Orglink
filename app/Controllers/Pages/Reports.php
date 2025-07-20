@@ -7,6 +7,8 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\CLIRequest;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\ResponseInterface;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Config\Services;
 
 use App\Models\Reports\ReportsModel;
@@ -184,6 +186,203 @@ class Reports extends BaseController
         $writer->save('php://output');
         exit;
     }
+
+    public function discrepancy_summary() {
+        $data['current_date'] = $this->ReportsModel->getcurrentdate(); 
+        return view('Pages/Reports/DTR_discrepancy_view',$data);
+    }
+
+    public function upload_discrepancy() {
+        if ($this->request->getFile('file')->isValid()) {
+            try {
+                if ($file = $this->request->getFile('file')) {
+          
+                    if ($file->isValid()) {
+            
+                        $reader = new Xlsx();
+                        $spreadsheet = $reader->load($file->getTempName());  
+                        
+                        $worksheet = $spreadsheet->getActiveSheet();
+                        
+                        $company = $worksheet->getCell('B2')->getValue();
+                        $dateFrom = $worksheet->getCell('B3')->getFormattedValue();
+                        $dateTo = $worksheet->getCell('B4')->getFormattedValue();
+                        $dtrNo = $worksheet->getCell('B5')->getValue();
+
+                        if ($company === '') {
+                            return $this->response->setJSON([
+                                "status" => "error",
+                                "message" => "Company is required"
+                            ]);
+                        }
+
+                        if ($dateFrom === '' || $dateTo === '') {
+                            return $this->response->setJSON([
+                                "status" => "error",
+                                "message" => "Date From & Date To is required"
+                            ]);
+                        }
+
+                        if ($dtrNo == '') {
+                            return $this->response->setJSON([
+                                "status" => "error",
+                                "message" => "DTR Number is required"
+                            ]);
+                        }
+
+                    $data = [];
+                    foreach ($worksheet->getRowIterator(8) as $row) {  
+                        $cellIterator = $row->getCellIterator('A', 'L');  
+                        $cellIterator->setIterateOnlyExistingCells(false); 
+
+                        $rowData = [];
+                        $i = 1;
+                        foreach ($cellIterator as $cell) {
+
+                            switch ($i) {
+                                case 1:
+                                    $rowData['emp_no'] = $cell->getValue();
+                                    break;
+                                case 2:
+                                    $rowData['name'] = $cell->getValue();
+                                    break;  
+                                case 3:
+                                    $rowData['whrs'] = $cell->getValue();
+                                    break;
+                                case 4:
+                                    $rowData['lhrs'] = $cell->getValue();
+                                    break;
+                                case 5:
+                                    $rowData['ot'] = $cell->getValue();
+                                    break;
+                                case 6:
+                                    $rowData['rdot'] = $cell->getValue();
+                                    break;
+                                case 7:
+                                    $rowData['regholot'] = $cell->getValue();
+                                    break;
+                                case 8:
+                                    $rowData['specialholot'] = $cell->getValue();
+                                    break;
+                                case 9:
+                                    $rowData['ot8'] = $cell->getValue();
+                                    break;
+                                case 10:
+                                    $rowData['npot'] = $cell->getValue();
+                                break;  
+                                break;
+                                case 11:
+                                    $rowData['np'] = $cell->getValue();
+                                break;  
+                                case 12:
+                                    $rowData['np8'] = $cell->getValue();
+                                break;  
+                                
+                            }
+                            $i++;  
+                        }
+
+                        $filteredRowData = array_filter($rowData, function($value) {
+                            return !is_null($value) && $value !== '';
+                        });
+
+                        if (!empty($filteredRowData)) {
+                            $data[] = $rowData;
+                        }
+                    }
+
+                    return $this->process_dispute_data($data, $company, $dateFrom, $dateTo, $dtrNo);
+
+
+                    } else {
+                        return $this->response->setJSON(['success' => false, 'message' => 'File upload failed.']);
+                        
+                    }
+                }
+                return $this->response->setJSON(['success' => false, 'message' => 'No file selected.']);
+
+            } catch (\Exception $e) {
+
+                $response = [
+                    "status" => 404,
+                    "code" => "error",
+                    "message" => $e->getMessage()
+                ];
+
+                return $this->response->setJSON($response);
+            }
+        } else {
+            return json_encode([
+                "status" => 404,
+                "code" => "error",
+                "message" => "No file uploaded or invalid file"
+            ]);
+        }
+    }
+
+    private function process_dispute_data($rowData, $company, $dateFrom, $dateTo, $dtrNo)
+    {
+        $FormattedDateFrom = \DateTime::createFromFormat('n/j/Y', $dateFrom)->format('Y-m-d');
+        $FormattedDateTo   = \DateTime::createFromFormat('n/j/Y', $dateTo)->format('Y-m-d');
+        $currentdate = $this->current_date();
+
+        foreach ($rowData as $row) {
+            $data[] = [
+                'CDR_DTR_No'         => $dtrNo,
+                'CDR_Client_ID'      => $row['emp_no'],
+                'CDR_Full_Name'      => $row['name'],
+                'CDR_Company_Code'   => $company,
+                'CDR_Date_From'      => $FormattedDateFrom,
+                'CDR_Date_To'        => $FormattedDateTo,
+                'CDR_WHrs'           => $row['whrs'] ?? 0,
+                'CDR_LHrs'           => $row['lhrs'] ?? 0,
+                'CDR_OT'             => $row['ot'] ?? 0,
+                'CDR_RDOT'           => $row['rdot'] ?? 0,
+                'CDR_Regular_Hol_OT' => $row['regholot'] ?? 0,
+                'CDR_Special_Hol_OT' => $row['specialholot'] ?? 0,
+                'CDR_OT8'            => $row['ot8'] ?? 0,
+                'CDR_NPOT'           => $row['npot'] ?? 0,
+                'CDR_NP'             => $row['np'] ?? 0,
+                'CDR_NP8'            => $row['np8'] ?? 0,
+                'CDR_Status'         => 'Pending',
+                'CDR_Audit_User'     => session('u_id'),
+                'CDR_Audit_Date'     => $currentdate
+            ];
+        }
+
+        $result = $this->ReportsModel->insert_dtr('client_discrepancy_report', $data);
+
+        if ($result) {
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Discrepancy report uploaded successfully"
+            ]);
+        } else {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Failed to insert data"
+            ]);
+        }
+    }
+
+    private function current_date(){
+        $current_date = '';
+        $getcurrentdate = $this->ReportsModel->getcurrentdate();
+            foreach($getcurrentdate as $tmp){
+                $current_date = $tmp->currentdatetime;
+        }
+
+        return $current_date;   
+    }
+
+    public function loaduploadeddiscrepancy() {
+
+        return $this->response->setJSON(
+            $this->ReportsModel->loaduploadedlistofdiscrepancy()
+        );
+
+    }
+
     
 }
 

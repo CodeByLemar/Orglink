@@ -77,5 +77,42 @@ class ReportsModel extends Model
         $result = $query->getResult();
         return $result;
     }
+
+    public function insert_dtr($table, $data) 
+    {
+        $builder = $this->db->table($table);
+        return $builder->insertBatch($data); 
+    }
+
+    public function loaduploadedlistofdiscrepancy()
+    {
+        $builder = $this->db->table('client_discrepancy_report AS cdr');
+        $builder->select('
+            cdr.CDR_Ref_No,
+            cdr.CDR_DTR_No,
+            cdr.CDR_OT,
+            cdr.CDR_Date_From,
+            cdr.CDR_Date_To,
+            cdr.CDR_Client_ID,
+            cdr.CDR_Full_Name,
+            ccl.CCL_Company_Name,
+            cdr.CDR_WHrs,
+            cdr.CDR_LHrs,
+            cdr.CDR_RDOT,
+            cdr.CDR_Regular_Hol_OT,
+            cdr.CDR_Special_Hol_OT,
+            cdr.CDR_OT8,
+            cdr.CDR_NPOT,
+            cdr.CDR_NP,
+            cdr.CDR_NP8,
+            cpl.CPL_Position_Name
+        ');
+        
+        $builder->join('client_company_list AS ccl', 'cdr.CDR_Company_Code = ccl.CCL_Company_Code', 'inner');
+        $builder->join('client_employee_list AS cel', 'cdr.CDR_Client_ID = cel.CEL_Client_ID', 'left');
+        $builder->join('client_position_list AS cpl', 'cel.CEL_Position = cpl.CPL_Ref_No', 'left');
+        $query = $builder->get();
+        return $query->getResultArray();
+    }
 }
 ?>

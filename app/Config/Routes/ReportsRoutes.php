@@ -20,7 +20,11 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('gov_contribution_summary', 'Pages\Reports::gov_contribution_summary'); 
         $routes->get('payroll_summary', 'Pages\Reports::payroll_summary'); 
         $routes->get('Alphalist', 'Pages\Reports::Alphalist');  
-        $routes->post('Generate_Alphalist', 'Pages\Reports::Generate_Alphalist');  
+        $routes->post('Generate_Alphalist', 'Pages\Reports::Generate_Alphalist');
+        
+        $routes->get('discrepancy_summary', 'Pages\Reports::discrepancy_summary'); 
+        $routes->post('upload_dtr', 'Pages\Reports::upload_discrepancy');
+        $routes->get('loadDisputeList', 'Pages\Reports::loaduploadeddiscrepancy');
         
     });
 });

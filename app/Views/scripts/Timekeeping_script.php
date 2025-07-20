@@ -639,6 +639,35 @@
         });
     }
 
+    $(document).on('click', '#hold_payroll', function (e) {
+        e.preventDefault();
+        
+        var references = $("#references").val();
+        let $btn = $(this);
+        $btn.prop('disabled', true);
+        $btn.html(`<span class="spinner-border spinner-border-sm mr-2"></span> Saving...`);
+
+        $.ajax({
+            url: "<?= base_url('Payroll/PayholdSelectedLogs') ?>",
+            type: "POST",
+            data:JSON.stringify({
+                references: references
+            }),
+            dataType: "JSON",
+            success:(data)=>{
+                if (data.status === 'success') {
+                    alert(data.message);
+                    $("#validate_modal").modal('hide');
+                } else {
+                    alert(data.message);
+                }
+
+                $btn.prop('disabled', false);
+                $btn.html(`Pay Hold`);
+            }
+        });
+    });
+
     // function retrieveconvertedlogs(iCompany,ifrom,ito){
     //     company = iCompany;
     //     from = ifrom;

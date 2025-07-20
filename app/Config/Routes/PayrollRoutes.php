@@ -34,7 +34,8 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('upload_payslip', 'Pages\Payroll::upload_payslip');
         $routes->post('getemployeelist', 'Pages\Payroll::getemployeelist');
 
-         $routes->post('ProcessSelectedPayslip', 'Pages\Payroll::ProcessSelectedPayslip');
+        $routes->post('ProcessSelectedPayslip', 'Pages\Payroll::ProcessSelectedPayslip');
+        $routes->post('PayholdSelectedLogs', 'Pages\Payroll::PayholdSelectedLogs');
         
     });
 });
