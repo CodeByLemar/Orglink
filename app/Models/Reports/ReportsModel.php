@@ -114,5 +114,18 @@ class ReportsModel extends Model
         $query = $builder->get();
         return $query->getResultArray();
     }
+
+    public function getpayholdlist($company='', $from='', $to='')
+    {
+        $sql = "CALL usp_jtj_getpayholdtimelogs (?,?,?) "; 
+        $params = [
+            $company,
+            $from,
+            $to
+        ];
+        $query = $this->db->query($sql,$params);
+        $result = $query->getResult();
+        return  $result;
+    }
 }
 ?>

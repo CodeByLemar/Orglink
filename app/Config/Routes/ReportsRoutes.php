@@ -25,6 +25,8 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('discrepancy_summary', 'Pages\Reports::discrepancy_summary'); 
         $routes->post('upload_dtr', 'Pages\Reports::upload_discrepancy');
         $routes->get('loadDisputeList', 'Pages\Reports::loaduploadeddiscrepancy');
+        $routes->get('PayholdSummary', 'Pages\Reports::PayholdSummary');
+        $routes->get('getpayholdlist', 'Pages\Reports::getpayholdlist');
         
     });
 });

@@ -136,10 +136,6 @@
                                                             <i class="ki-duotone ki-filter-search fs-3x"><span class="path1"></span><span class="path2"></span></i>
                                                         </div>
                                                     </a>  
-
-                                                    <a href="#" id="validate_logs" class="btn btn-primary font-weight-bold mr-2">
-                                                        <i class="flaticon2-check-mark"></i> Validate Selected Logs
-                                                    </a>
                                                 </div> 
                                             </div>
                                         </div>
@@ -181,6 +177,16 @@
                                             <h4 class="text-center">Uploaded Data</h4>
                                             <hr>
                                         </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                <a id="select_all" href="#!" class="btn btn-sm btn-info dt-button disabled"><i class="fa-solid fa-square-check"></i> Select All</a>
+                                                <a id="validate_logs" href="#!" class="btn btn-sm btn-primary dt-button"><i class="fa fa-check"></i> Validate</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                         <div class="row">
                                             <div class="col-sm-4 mb-10">
                                                 <div class="form-group mb-3">

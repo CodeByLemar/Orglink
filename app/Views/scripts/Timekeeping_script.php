@@ -37,7 +37,7 @@
 
             var fileInput = $('#timelog')[0];
             if (fileInput.files.length === 0) {
-                alert('Please select an XLSX file to upload.');
+                ShowMessage(`error`, `Please select an XLSX file to upload.`, 1000);
                 return;
             }
 
@@ -53,7 +53,7 @@
                 var sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
                 if (sheetData.length < 13) {
-                    alert("XLSX file is too short or malformed.");
+                    ShowMessage(`error`, `XLSX file is too short or malformed.`, 1000);
                     return;
                 }
 
@@ -62,8 +62,7 @@
                 let dateToRaw = sheetData[2][1];
 
                 if(dateFromRaw==''||dateToRaw==''){
-                    
-                    alert("Date From and Date To is required.");
+                    ShowMessage(`error`, `Date From and Date To is required.`, 1000);
                     return;
                 }
                 function excelSerialToJSDate(serial) {
@@ -81,7 +80,7 @@
                  
                 console.log(sheetData);
                 if (!isValidDate(dateFrom) || !isValidDate(dateTo)) {  
-                    alert("Invalid 'Date From' or 'Date To' in rows 8/9.");
+                    ShowMessage(`error`, `Invalid 'Date From' or 'Date To' in rows 8/9.`, 1000);
                     return;
                 }
 
@@ -97,21 +96,21 @@
                         break;
                     }
                     if (!/^[0-9]+$/.test(CUT_Client_ID)) {
-                        alert(`Invalid Employee No. on row ${i + 1}. Employee No. should be numeric.`); 
+                        ShowMessage(`error`, `Invalid Employee No. on row ${i + 1}. Employee No. should be numeric.`, 1000);
                         console.log(CUT_Client_ID);
                         console.log(sheetData.length);
                         return;
                     }
 
                     if (CUT_Emp_Name.trim() === '') {
-                        alert(`Invalid Employee Name on row ${i + 1}. Employee Name should not be blank.`);
+                        ShowMessage(`error`, `Invalid Employee Name on row ${i + 1}. Employee Name should not be blank.`, 1000);
                         return;
                     }
 
                     const numericFields = row.slice(6, 26);
                     for (let j = 0; j < numericFields.length; j++) {
                         if (numericFields[j] && isNaN(numericFields[j])) { 
-                            alert(`Invalid number in row ${i + 1}, column ${j + 6}. Field should be numeric.`);
+                            ShowMessage(`error`, `Invalid number in row ${i + 1}, column ${j + 6}. Field should be numeric.`, 1000);
                             return;
                         }
                     }
@@ -128,13 +127,13 @@
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        alert('File uploaded successfully!');
+                        ShowMessage(`success`, `File uploaded successfully!`, 2000);
 
                         retrieveuploadedlogs(CompanyCode, dateFrom, dateTo);
                         // retrieveconvertedlogs(CompanyCode, dateFrom, dateTo);
                     },
                     error: function (xhr, status, error) {
-                        alert('Error uploading file.');
+                        ShowMessage(`success`, `Error uploading file.`, 2000);
                         console.error(error);
                     }
                 });
@@ -144,7 +143,7 @@
             };
 
             reader.onerror = function (err) {
-                alert("Error reading the XLSX file.");
+                ShowMessage(`success`, `Error reading the XLSX file.`, 2000);
                 console.error(err);
             };
 
@@ -174,7 +173,7 @@
         const pad = (val) => val.toString().padStart(2, '0');
 
         if (!cutoff1_from || !cutoff1_to || !cutoff2_from || !cutoff2_to) {
-            alert("Please fill in all cutoff inputs.");
+            ShowMessage(`error`, `Please fill in all cutoff inputs.`, 1000);
             return;
         }
 
@@ -235,7 +234,7 @@
         const pad = (val) => val.toString().padStart(2, '0');
 
         if (!cutoff1_from || !cutoff1_to || !cutoff2_from || !cutoff2_to) {
-            alert("Please fill in all cutoff inputs.");
+            ShowMessage(`error`, `Please fill in all cutoff inputs.`, 1000);
             return;
         }
 
@@ -347,7 +346,7 @@
 
 
         if (selectedLogs.length === 0) {
-            alert(`Please select logs to validate.`);
+            ShowMessage(`error`, `Please select logs to validate.`, 1000);
             $("#validate_logs").prop('disabled', false);
             $("#validate_logs").removeClass('spinner spinner-white spinner-right');
             return;
@@ -465,7 +464,7 @@
                 $("#validate_modal").modal('toggle');
             },
             error: (xhr, status, error) => {
-                alert("Failed to fetch data. Please try again.");
+                ShowMessage(`error`, `Failed to fetch data. Please try again.`, 2000);
             }
         })
         .always(() => {
@@ -488,10 +487,10 @@
             dataType: "JSON",
             success:(data)=>{
                 if (data.status === 'success') {
-                    alert(data.message);
+                    ShowMessage(`success`, data.message, 2000);
                     $("#validate_modal").modal('hide');
                 } else {
-                    alert(data.message);
+                    ShowMessage(`error`, data.message, 2000);
                 }
             }
         });
@@ -509,7 +508,7 @@
             },
             success:function(data){ 
                 data = JSON.parse(data); 
-
+                $("#select_all").removeClass('disabled');
                 $('#TimeLogs_tbl').DataTable().destroy();
                 $('#TimeLogs_tbl tbody').empty(); 
                 var i = 1;
@@ -656,10 +655,10 @@
             dataType: "JSON",
             success:(data)=>{
                 if (data.status === 'success') {
-                    alert(data.message);
+                    ShowMessage(`success`, data.message, 2000);
                     $("#validate_modal").modal('hide');
                 } else {
-                    alert(data.message);
+                    ShowMessage(`error`, data.message, 2000);
                 }
 
                 $btn.prop('disabled', false);
@@ -667,6 +666,29 @@
             }
         });
     });
+
+    $(document).on('click', '#select_all', function(e) {
+        e.preventDefault();
+        $('input[name="checked_logs"]:not(:disabled)').prop('checked', true);
+    });
+
+    function ShowMessage(icon, message, timer){
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: timer,
+            timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                icon: icon,
+                title: message
+        });
+    }
 
     // function retrieveconvertedlogs(iCompany,ifrom,ito){
     //     company = iCompany;

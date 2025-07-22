@@ -26,7 +26,7 @@
             const file = $("#dtr")[0].files[0];
    
             if (!file) {
-                  alert('No file selected!');
+                  ShowMessage(`error`, `No file selected!`, 1000);
                   return;
             }
    
@@ -121,13 +121,45 @@
                   paging: false,
                   info: true,
                   ordering: true,
-                  searching: true
+                  searching: true,
+                  dom: 'Bfrtip',  
+                  buttons: [
+                     {
+                        extend: 'excelHtml5',
+                        title: 'TimeLogs_Export',
+                        text: 'Export to Excel',
+                        className: 'fw-bold btn btn-sm btn-success'
+                     },
+                     {
+                        extend: 'pdfHtml5',
+                        title: 'TimeLogs_Export',
+                        orientation: 'landscape',
+                        pageSize: 'A4'
+                     } 
+                  ]
                }).draw();
             }
          }
       });
    }
 
+   function ShowMessage(icon, message, timer){
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: timer,
+            timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({
+                icon: icon,
+                title: message
+        });
+   }
 
 
 </script>

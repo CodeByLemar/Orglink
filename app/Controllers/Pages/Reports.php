@@ -383,6 +383,19 @@ class Reports extends BaseController
 
     }
 
+    public function PayholdSummary()
+    {
+        $data['current_date'] = $this->ReportsModel->getcurrentdate(); 
+        return view('Pages/Reports/PayHoldSummaryView',$data);
+    }
+
+    public function getpayholdlist()
+    {
+        return $this->response->setJSON(
+            $this->ReportsModel->getpayholdlist()
+        );
+    }
+
     
 }
 

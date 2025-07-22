@@ -210,7 +210,7 @@
          </div>
          <div class="modal-footer"> 
             <a id="upload_dtr" href="#!" class="btn btn-sm btn-success">Upload</a>
-            <a id="download_timelogs_template" class="btn btn-sm btn-info" href="<?php base_url();?>/assets/templates/DTR_TEMPLATE.xlsx" download>Download Template</a>
+            <a id="download_timelogs_template" class="btn btn-sm btn-info" href="<?php base_url();?>/assets/templates/Upload_Discrepancy_Template.xlsx" download>Download Template</a>
             <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">Close</button>
          </div>
       </div>
