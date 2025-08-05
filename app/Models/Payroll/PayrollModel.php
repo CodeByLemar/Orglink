@@ -191,4 +191,89 @@ class PayrollModel extends Model
 
         return $result->CEL_Payroll_Status ?? null;
     }
+
+    public function getemployeevalidatedlogsById($code){
+        
+        return $this->db->table('client_uploaded_timelogs')
+            ->select('*')
+            ->join('client_employee_list', 'CUT_Client_ID = CEL_Client_ID', 'inner')
+            ->join('validated_payroll_data_list', 'CUT_Ref_No = VPDL_CUT_Ref_No', 'inner')
+            ->where('CUT_Ref_No', $code)
+            ->get()
+            ->getResultArray();
+    }  
+
+    public function getSSSContrib($amount) 
+    {
+        $sql = "SELECT 
+            SUM(ST_Employee_Regular_SS + ST_Employee_MPF) AS SSSEmployeeContribution,
+            SUM(ST_Employer_Regular_SS + ST_Employer_MPF + ST_Employer_EC) AS SSSEmployerContribution 
+            FROM sss_table 
+		WHERE ? BETWEEN ST_Min AND ST_Max";
+        $query = $this->db->query($sql, $amount);
+        return $query->getResultArray();
+    }
+
+    public function getPhilHealthContrib($amount) 
+    {
+        $sql = "SELECT 
+            (CASE 
+                WHEN SUM(? * (PT_Multiplier * 0.01)) < MAX(PT_Fixed_Amount) 
+                THEN MAX(PT_Fixed_Amount)
+                ELSE SUM(? * (PT_Multiplier * 0.01)) 
+            END) AS TotalPhilContrib,
+            (CASE 
+                WHEN SUM(? * (PT_Multiplier * 0.01)) < MAX(PT_Fixed_Amount) 
+                THEN MAX(PT_Fixed_Amount)
+                ELSE SUM(? * (PT_Multiplier * 0.01)) 
+            END) / 2 AS EmployeePhilContrib,
+            (CASE 
+                WHEN SUM(? * (PT_Multiplier * 0.01)) < MAX(PT_Fixed_Amount) 
+                THEN MAX(PT_Fixed_Amount)
+                ELSE SUM(? * (PT_Multiplier * 0.01)) 
+            END) / 2 AS EmployerPhilContrib
+        FROM philhealth_table
+        WHERE ? BETWEEN PT_Min AND PT_Max";
+
+        $query = $this->db->query($sql, [$amount, $amount, $amount, $amount, $amount, $amount, $amount]);
+        return $query->getResultArray();
+    }
+
+    public function getHdmfContrib($amount)
+    {
+        $sql = "SELECT 
+            CASE 
+                WHEN (? * (HT_Employee_Multiplier * 0.01)) > 200.00 
+                THEN 200.00
+                ELSE (? * (HT_Employee_Multiplier * 0.01)) 
+            END AS EmployeeHdmfContrib,
+            
+            CASE 
+                WHEN (? * (HT_Employer_Multiplier * 0.01)) > 200.00 
+                THEN 200.00
+                ELSE (? * (HT_Employer_Multiplier * 0.01)) 
+            END AS EmployerHdmfContrib
+        FROM hdmf_table
+        WHERE ? BETWEEN HT_Min AND HT_Max";
+
+        $query = $this->db->query($sql, [$amount, $amount, $amount, $amount, $amount]);
+        return $query->getResultArray();
+    }
+
+    public function getWHoldingTax($amount, $frequency)
+    {
+        $amount = floatval($amount);
+
+        $sql = "SELECT 
+                    TT_Prescribed_Wtax_Amount + ((? - TT_Min) * (TT_Prescribed_Wtax_Percent * 0.01)) AS Wtax
+                FROM tax_table
+                WHERE TT_Frequency = ?
+                AND ? BETWEEN TT_Min AND TT_Max
+                LIMIT 1";
+
+        $query = $this->db->query($sql, [$amount, $frequency, $amount]);
+        return $query->getResultArray();
+
+    }
+
 } 

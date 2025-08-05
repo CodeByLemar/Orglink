@@ -221,7 +221,7 @@ $(document).ready(function(){
                 var i = 1;
                 data.forEach(row => { 
                     let rowClass = row.CUT_Status === 'Pay Hold' ? 'table-danger' : '';
-                    payslip_btn = `<a title="Print Employee Payslip" href="#!" class="btn btn-sm btn-info generate_payslip" data-id="${row.CUT_Client_ID}"><i class="fa-regular fa-file-pdf"></i></a>`;
+                    payslip_btn = `<a title="Print Employee Payslip" href="#!" onclick="GeneratePayslip(${row.CUT_Ref_No})" class="btn btn-sm btn-info generate_payslip" data-id="${row.CUT_Client_ID}"><i class="fa-regular fa-file-pdf"></i></a>`;
                     tr = `  <tr class="${rowClass}"> 
                                 <td class="text-center">
                                     <input type="checkbox" value="${row.CUT_Ref_No}" name="checked_reference" ${row.CUT_Status === 'Pay Hold' ? 'disabled' : ''}/>
@@ -351,33 +351,33 @@ $(document).ready(function(){
 
     });
 
-    $(document).on('click', '.generate_payslip', function () {
-        let Company = $('#iCompany').val();
-        let From = $('#ifrom').val();
-        let To = $('#ito').val();
-        let Client = $(this).data('id');
+    // $(document).on('click', '.generate_payslip', function () {
+    //     let Company = $('#iCompany').val();
+    //     let From = $('#ifrom').val();
+    //     let To = $('#ito').val();
+    //     let Client = $(this).data('id');
 
-        // console.log(Company, From, To, Client);
+    //     // console.log(Company, From, To, Client);
 
-        $.ajax({
-            type: "POST",
-            url: "<?= base_url('Payroll/generate_payslip') ?>",
-            data: JSON.stringify({
-                Company: Company,
-                From: From,
-                To: To,
-                clientId: Client
-            }),
-            contentType: "application/json", 
-            dataType: "json",
-            success: function (data) {
-                window.open(data.payslipUrl, '_blank');
-            },
-            error: function (xhr) {
-                console.error("Error:", xhr.responseText);
-            }
-        });
-    });
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "<?= base_url('Payroll/generate_payslip') ?>",
+    //         data: JSON.stringify({
+    //             Company: Company,
+    //             From: From,
+    //             To: To,
+    //             clientId: Client
+    //         }),
+    //         contentType: "application/json", 
+    //         dataType: "json",
+    //         success: function (data) {
+    //             window.open(data.payslipUrl, '_blank');
+    //         },
+    //         error: function (xhr) {
+    //             console.error("Error:", xhr.responseText);
+    //         }
+    //     });
+    // });
 
 
     $(document).on('click','#print_register',function(){
@@ -456,5 +456,12 @@ $(document).ready(function(){
             }
         });
     });
+
+
+    function GeneratePayslip(reference) {
+        var PayslipURL = "<?= base_url('Payroll/GeneratePayslipPdf/') ?>" + reference;
+        
+	    window.open(PayslipURL, '_blank');
+    }
 
 </script>

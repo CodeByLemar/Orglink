@@ -37,5 +37,6 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('ProcessSelectedPayslip', 'Pages\Payroll::ProcessSelectedPayslip');
         $routes->post('PayholdSelectedLogs', 'Pages\Payroll::PayholdSelectedLogs');
         
+        $routes->get('GeneratePayslipPdf/(:any)', 'Pages\Payroll::payslip_pdf/$1', ['as' => 'GeneratePayslipPdf']);
     });
 });

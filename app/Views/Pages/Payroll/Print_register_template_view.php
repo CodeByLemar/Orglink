@@ -118,10 +118,10 @@
                             <th style="border: 1px solid black;"><p class="center payrollheader">Reg. OT</p></th>
                             <th style="border: 1px solid black;"><p class="center payrollheader">Night Diff.</p></th>
                             <th style="border: 1px solid black;"><p class="center payrollheader">SP Hol Pay</p></th>
-                            <th style="border: 1px solid black;"><p class="center payrollheader">Leg Hol Pay</p></th>
+                            <th style="border: 1px solid black;"><p class="center payrollheader">Reg Hol Pay</p></th>
                             <th style="border: 1px solid black;"><p class="center payrollheader">SP Restday</p></th>
 
-                            <th style="border: 1px solid black;"><p class="center payrollheader">Leg Restday</p></th>
+                            <th style="border: 1px solid black;"><p class="center payrollheader">Reg Restday</p></th>
                             <th style="border: 1px solid black;"><p class="center payrollheader">Leave</p></th>
                             <th style="border: 1px solid black;"><p class="center payrollheader">O Earnings</p></th>
                             <th style="border: 1px solid black;"><p class="center payrollheader">Total Earnings</p></th> 
@@ -148,36 +148,100 @@
                                 ?>
                                 <tr>
                                     <td><p class="payrollheader"><?= esc($row->CEL_Last_Name)?>, <?= esc($row->CEL_First_Name)?></p></td>  
+                                    <td><p class="right payrollheader"><?= number_format((float)$row->CEL_Basic_Rate * 14, 2, '.', '') ?> </p></td> 
+                                    <td><p class="right payrollheader"><?= $row->VPDL_Abs; ?></p></td>
+                                    <td><p class="right payrollheader"><?= $row->VPDL_Late; ?></p></td>
+                                    <td><p class="right payrollheader"><?= $row->CEL_Allowance ?? '0.00'; ?></p></td>
+
+                                    <?php 
+                                    // REGULAR OT
+                                        $rwd_total = 0.00;
+                                        $rwd_overtime = $row->VPDL_RWD_Ovt_Amount ?? 0.00;
+                                        $rwd_overtime8 = $row->VPDL_RWD_Ovt8_Amount ?? 0.00;
+                                        $rwd_np = $row->VPDL_RWD_NP_Amount ?? 0.00;
+                                        $rwd_np8 = $row->VPDL_RWD_NP8_Amount ?? 0.00;
+                                        $rwd_total = $rwd_overtime + $rwd_overtime8 + $rwd_np + $rwd_np8;
+
+                                        // SP HOLIDAY
+                                        $shnr_total = 0.00;
+                                        $shnr_overtime = $row->VPDL_SHNR_Ovt_Amount ?? 0.00;
+                                        $shnr_overtime8 = $row->VPDL_SHNR_Ovt8_Amount ?? 0.00;
+                                        $shnr_np = $row->VPDL_SHNR_NP_Amount ?? 0.00;
+                                        $shnr_np8 = $row->VPDL_SHNR_NP8_Amount ?? 0.00;
+                                        $shnr_total = $shnr_overtime + $shnr_overtime8 + $shnr_np + $shnr_np8;
+
+                                        // REG HOLIDAY 
+                                        $rhnr_total = 0.00;
+                                        $rhnr_overtime = $row->VPDL_RHNR_Ovt_Amount ?? 0.00;
+                                        $rhnr_overtime8 = $row->VPDL_RHNR_Ovt8_Amount ?? 0.00;
+                                        $rhnr_np = $row->VPDL_RHNR_NP_Amount ?? 0.00;
+                                        $rhnr_np8 = $row->VPDL_RHNR_NP8_Amount ?? 0.00;
+                                        $rhnr_total = $rhnr_overtime + $rhnr_overtime8 + $rhnr_np + $rhnr_np8;
+
+                                        // SP HOLIDAY RESTDAY 
+                                        $rd_total = 0.00;
+                                        $rd_overtime = $row->VPDL_RD_Ovt_Amount ?? 0.00;
+                                        $rd_overtime8 = $row->VPDL_RD_Ovt8_Amount ?? 0.00;
+                                        $rd_np = $row->VPDL_RD_NP_Amount ?? 0.00;
+                                        $rd_np8 = $row->VPDL_RD_NP8_Amount ?? 0.00;
+                                        $rd_total = $rd_overtime + $rd_overtime8 + $rd_np + $rd_np8;
+
+                                        // REGULAR RESTDAY PAY
+                                        $rhrd_total = 0.00;
+                                        $rhrd_overtime = $row->VPDL_RHRD_Ovt_Amount ?? 0.00;
+                                        $rhrd_overtime8 = $row->VPDL_RHRD_Ovt8_Amount ?? 0.00;
+                                        $rhrd_np = $row->VPDL_RHRD_NP_Amount ?? 0.00;
+                                        $rhrd_np8 = $row->VPDL_RHRD_NP8_Amount ?? 0.00;
+                                        $rhrd_total = $rhrd_overtime + $rhrd_overtime8 + $rhrd_np + $rhrd_np8;
+
+
+                                        $daily_gross = 0.00;
+                                        $gross_earnings = 0.00;
+                                        $rate_per_day = $row->CEL_Basic_Rate / 8;
+                                        $Lhrs = $row->VPDL_LHrs;
+                                        $Whrs = $row->VPDL_WHrs;
+                                        $total_overbreak = $row->VPDL_Total_Overbreak;
+                                        $daily_gross = number_format((float)($Lhrs + $Whrs) * $rate_per_day, 2, '.', '');
+                                        $gross_earnings = ($rwd_total + $shnr_total + $rhnr_total + $rd_total + $rhrd_total + $daily_gross) - $total_overbreak;
+
+                                    // GOVERNMENT DUES
+                                        $sss = $row->VPDL_SSS_Employee_Contribution ?? 0.00;
+                                        $philhealth = $row->VPDL_Philhealth_Employee_Contribution ?? 0.00;
+                                        $hdmf = $row->VPDL_HDMF_Employee_Contribution ?? 0.00;
+                                        $tax = $row->VPDL_Withholding_Tax ?? 0.00;
+                                        $total_deductions = 0.00;
+                                        
+                                        $total_deductions = $sss + $philhealth + $hdmf + $tax;
+
+                                        $Netpay = $gross_earnings - $total_deductions;
+                                    ?>
+
+
+                                    <td><p class="right payrollheader"><?= number_format((float)$rwd_total, 2, '.', ''); ?></p></td>
+                                    <td><p class="right payrollheader">0.00</p></td>
+                                    <td><p class="right payrollheader"><?= number_format((float)$shnr_total, 2, '.', ''); ?></p></td>
+                                    <td><p class="right payrollheader"><?= number_format((float)$rhnr_total, 2, '.', ''); ?></p></td>
+                                    <td><p class="right payrollheader"><?= number_format((float)$rd_total, 2, '.', ''); ?></p></td>
+
+                                    <td><p class="right payrollheader"><?= number_format((float)$rhrd_total, 2, '.', ''); ?></p></td>
+                                    <td><p class="right payrollheader">0.00</p></td>
+                                    <td><p class="right payrollheader">0.00</p></td>
+                                    <td><p class="right payrollheader"><?= number_format((float)$gross_earnings, 2, '.', ''); ?></p></td> 
+                                    <td><p class="right payrollheader"><?= $tax ?></p></td> 
+
+                                    <td><p class="right payrollheader"><?= $sss ?></p></td>
+                                    <td><p class="right payrollheader"><?= $philhealth ?></p></td>
+                                    <td><p class="right payrollheader"><?= $hdmf ?></p></td>
+                                    <td><p class="right payrollheader">0.00</p></td>
+                                    <td><p class="right payrollheader">0.00</p></td>
+
+                                    <td><p class="right payrollheader">0.00</p></td>
                                     <td><p class="right payrollheader">0.00</p></td> 
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
+                                    <td><p class="right payrollheader"><?= number_format((float)$total_deductions, 2, '.', ''); ?></p></td>
                                     <td><p class="right payrollheader">0.00</p></td>
                                     <td><p class="right payrollheader">0.00</p></td>
 
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td> 
-                                    <td><p class="right payrollheader">0.00</p></td> 
-
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td> 
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-                                    <td><p class="right payrollheader">0.00</p></td>
-
-                                    <td><p class="right payrollheader">0.00</p></td>
+                                    <td><p class="right payrollheader"><?= number_format((float)$Netpay, 2, '.', ''); ?></p></td>
                                 </tr>
                                 <?php
                             }

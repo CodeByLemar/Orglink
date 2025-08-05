@@ -213,44 +213,22 @@ class Payroll extends BaseController
         ]);
     }
 
-    public function payslip_pdf(){ 
-        // Load TCPDF
+    public function payslip_pdf($id){ 
         $pdf = new TCPDF();
         $pdf->AddPage();
-        
-        $Company = session('Company');
-        $From = session('From');
-        $To = session('To');
-        $clientId = session('Client');
-        
-        $data = $this->PayrollModel->getemployeedetails($Company,$From,$To,$Client); 
-        $data = [
-            'emp'   => $data[0],
-            'from'  => $From,
-            'to'    => $To
-        ];
-        // $data = [
-        //     'employee_name' => 'ABAY, dsads PATRICIA',
-        //     'employee_id'   => '190678',
-        //     'period'        => '01/01/2025 to 01/15/2025',
-        //     'basic_pay'     => '9,030.00',
-        //     'gross'         => '10,320.00',
-        //     'net_pay'       => '10,587.70',
-        // ];
 
-        // Render view to string
+    
+        $data['emp'] = $this->PayrollModel->getemployeevalidatedlogsById($id); 
+
         $html = view('Pages/Payroll/Payslip_template_view',$data);
 
        
-        // Write the HTML to TCPDF
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        // Clean the output buffer (important!)
         ob_end_clean();
 
-        // Set headers
         $this->response->setHeader('Content-Type', 'application/pdf');
-        $pdf->Output('payslip.pdf', 'I'); // 'I' = inline, 'D' = download
+        $pdf->Output('payslip.pdf', 'I'); 
     }
 
     public function print_register(){
@@ -322,8 +300,11 @@ class Payroll extends BaseController
         foreach($result as $row) {
 
             $this->validate_logs_main($row->CUT_Ref_No, 'Validated');
+            $amount = $row->Total ?? 0;
+            $government = $this->GovernmentContributions($amount);
             
             $data[] = [
+                "VPDL_CUT_Ref_No" => $row->CUT_Ref_No,
                 "VPDL_Emp_No" => $row->CUT_Client_ID,
                 "VPDL_Company" => $row->CUT_Company_Code,
                 "VPDL_Date_From" => $row->CUT_From,
@@ -386,7 +367,13 @@ class Payroll extends BaseController
                 "VPDL_SHRD_NP_Amount" => $row->CUT_SHRD_NP_Amount,
                 "VPDL_SHRD_NP8" => $row->CUT_SHRD_NP8,
                 "VPDL_SHRD_NP8_Amount" => $row->CUT_SHRD_NP8_Amount,
-                "VPDL_Remarks" => $row->CUT_Remarks ?? '',
+                "VPDL_SSS_Employee_Contribution" => $government['SSSEmployee'],
+                "VPDL_SSS_Employer_Contribution" => $government['SSSEmployer'],
+                "VPDL_Philhealth_Employee_Contribution" => $government['PhilhealthEmployee'],
+                "VPDL_Philhealth_Employer_Contribution" => $government['PhilhealthEmployer'],
+                "VPDL_HDMF_Employee_Contribution" => $government['HdmfEmployee'],
+                "VPDL_HDMF_Employer_Contribution" => $government['HdmfEmployer'],
+                "VPDL_Withholding_Tax" => $government['WTax'],
                 "VPDL_Audit_User" => session('u_id'),
                 "VPDL_Audit_Date" => $this->current_date(),
 
@@ -397,7 +384,7 @@ class Payroll extends BaseController
 
         if ($response) {
             return $this->response->setJSON([
-                "status" => "error",
+                "status" => "success",
                 "message" => "Logs validated successfully"
             ]);
         } else {
@@ -418,8 +405,11 @@ class Payroll extends BaseController
         foreach($result as $row) {
 
             $this->validate_logs_main($row->CUT_Ref_No, 'Pay Hold');
+            $amount = $row->Total ?? 0;
+            $government = $this->GovernmentContributions($amount);
             
             $data[] = [
+                "VPDL_CUT_Ref_No" => $row->CUT_Ref_No,
                 "VPDL_Emp_No" => $row->CUT_Client_ID,
                 "VPDL_Company" => $row->CUT_Company_Code,
                 "VPDL_Date_From" => $row->CUT_From,
@@ -483,6 +473,13 @@ class Payroll extends BaseController
                 "VPDL_SHRD_NP8" => $row->CUT_SHRD_NP8,
                 "VPDL_SHRD_NP8_Amount" => $row->CUT_SHRD_NP8_Amount,
                 "VPDL_Remarks" => $row->CUT_Remarks ?? '',
+                "VPDL_SSS_Employee_Contribution" => $government['SSSEmployee'],
+                "VPDL_SSS_Employer_Contribution" => $government['SSSEmployer'],
+                "VPDL_Philhealth_Employee_Contribution" => $government['PhilhealthEmployee'],
+                "VPDL_Philhealth_Employer_Contribution" => $government['PhilhealthEmployer'],
+                "VPDL_HDMF_Employee_Contribution" => $government['HdmfEmployee'],
+                "VPDL_HDMF_Employer_Contribution" => $government['HdmfEmployer'],
+                "VPDL_Withholding_Tax" => $government['WTax'],
                 "VPDL_Audit_User" => session('u_id'),
                 "VPDL_Audit_Date" => $this->current_date(),
 
@@ -493,7 +490,7 @@ class Payroll extends BaseController
 
         if ($response) {
             return $this->response->setJSON([
-                "status" => "error",
+                "status" => "success",
                 "message" => "Logs validated successfully"
             ]);
         } else {
@@ -504,6 +501,7 @@ class Payroll extends BaseController
         }
 
     }
+    
 
     private function validate_logs_main($reference, $status){
         $this->PayrollModel->update_logs(["CUT_Status" => $status], $reference, 'client_uploaded_timelogs', 'CUT_Ref_No');
@@ -614,22 +612,14 @@ class Payroll extends BaseController
 
     private function email_payslip($clientId)
     {
-        $result = $this->PayrollModel->getemployeedetailsbyId($clientId);
+        $result = $this->PayrollModel->getemployeevalidatedlogsById($clientId);
 
-        if (!$result || !isset($result[0])) {
-            log_message('error', "No employee data found for ID: $clientId");
-            return false;
-        }
-
-        $emp = $result[0];
-        $from = $emp->CUT_From;
-        $to   = $emp->CUT_To;
-
-        $data = [
-            'emp'  => $emp,
-            'from' => $from,
-            'to'   => $to
-        ];
+        $data['emp'] = $result; 
+        $from = $result[0]['CUT_From'];
+        $to = $result[0]['CUT_To'];
+        $name = $result[0]['CUT_Emp_Name'];
+        $ID = $result[0]['CUT_Client_ID'];
+        $emailAdd = $result[0]['CEL_Email'] ?? null;
 
         $pdf = new \TCPDF();
         $pdf->AddPage();
@@ -641,18 +631,19 @@ class Payroll extends BaseController
             mkdir($savePath, 0777, true);
         }
 
-        $filename = $savePath . $emp->CUT_Client_ID . '_payslip_' . date('Ymd_His') . '.pdf';
+        $filename = $savePath . $ID . '_payslip_' . date('Ymd_His') . '.pdf';
         $pdf->Output($filename, 'F');
 
         $email = \Config\Services::email(true);
         $email->setFrom('orglinkit@gmail.com', 'Orglink_IT');
-        $email->setTo($emp->CEL_Email);
+        $email->setTo($emailAdd);
         $email->setSubject('Your Payslip for ' . date('F Y', strtotime($from)));
-        $email->setMessage("Dear " . $emp->CUT_Emp_Name . ",<br><br>Attached is your payslip for the period {$from} to {$to}.<br><br>Regards,<br>HR Team");
+        $email->setMessage("Dear " . $name . ",<br><br>Attached is your payslip for the period {$from} to {$to}.<br><br>Regards,<br>HR Team");
         $email->attach($filename);
 
         $sendSuccess = $email->send();
 
+    
         unlink($filename);
 
         $email->clear(true);
@@ -661,10 +652,50 @@ class Payroll extends BaseController
             $this->PayrollModel->update_logs(['CUT_Email_Sent' => 1], $clientId, 'client_uploaded_timelogs', 'CUT_Ref_No');
             return true;
         } else {
-            log_message('error', 'Failed to send payslip to ' . $emp->CEL_Email . '. Error: ' . $email->printDebugger(['headers']));
+            log_message('error', 'Failed to send payslip to ' . $emailAdd . '. Error: ' . $email->printDebugger(['headers']));
             return false;
         }
     }
+
+    public function GovernmentContributions($amount)
+    {
+        $contributions = [];
+
+        $sss = $this->PayrollModel->getSSSContrib($amount);
+        $philhealth = $this->PayrollModel->getPhilHealthContrib($amount);
+        $hdmf = $this->PayrollModel->getHdmfContrib($amount);
+
+
+        $sssEmp = $sss[0]['SSSEmployeeContribution'] ?? 0;
+        $sssEr = $sss[0]['SSSEmployerContribution'] ?? 0;
+
+        $philEmp = $philhealth[0]['EmployeePhilContrib'] ?? 0;
+        $philEr = $philhealth[0]['EmployerPhilContrib'] ?? 0;
+
+        $hdmfEmp = $hdmf[0]['EmployeeHdmfContrib'] ?? 0;
+        $hdmfEr = $hdmf[0]['EmployerHdmfContrib'] ?? 0;
+
+        $taxableAmount = $amount - ($sssEmp + $philEmp + $hdmfEmp);
+        $taxableAmount = number_format($taxableAmount, 2, '.', '');
+
+        $wTaxData = $this->PayrollModel->getWHoldingTax($taxableAmount, 'Semi-monthly');
+        $Wtax = $wTaxData[0]['Wtax'] ?? 0;
+
+        $contributions= [
+            'SSSEmployee' => $sssEmp,
+            'SSSEmployer' => $sssEr,
+            'PhilhealthEmployee' => $philEmp,
+            'PhilhealthEmployer' => $philEr,
+            'HdmfEmployee' => $hdmfEmp,
+            'HdmfEmployer' => $hdmfEr,
+            'WTax' => $Wtax,
+            'TotalEmployeeDeduction' => $sssEmp + $philEmp + $hdmfEmp + ($wTaxData['Wtax'] ?? 0),
+            'TotalEmployerShare' => $sssEr + $philEr + $hdmfEr
+        ];
+
+        return $contributions;
+    }
+
 
 }
 ?>
